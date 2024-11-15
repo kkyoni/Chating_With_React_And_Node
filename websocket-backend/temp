@@ -1,0 +1,98 @@
+const express = require('express');
+const cors = require('cors'); 
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const bodyParser = require('body-parser');
+const WebSocket = require('ws');
+const mysql = require('mysql2');
+
+const app = express();
+const PORT = 8080;
+const SECRET_KEY = 'your_secret_key';  // Use an environment variable in production
+
+// MySQL connection
+const db = mysql.createConnection({
+    host: 'localhost',
+    user: 'root', // replace with your MySQL username
+    password: '', // replace with your MySQL password
+    database: 'chat_app'
+});
+
+db.connect((err) => {
+    if (err) throw err;
+    console.log('Connected to MySQL database');
+});
+
+app.use(cors({
+    origin: 'http://localhost:3000', // Allow requests from the frontend
+    methods: ['GET', 'POST'], // Specify allowed HTTP methods
+    credentials: true // Allow cookies if needed
+}));
+
+app.use(bodyParser.json());
+
+// User registration endpoint
+app.post('/register', async (req, res) => {
+    const { username, password } = req.body;
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    db.query('INSERT INTO users (username, password) VALUES (?, ?)', [username, hashedPassword], (err) => {
+        if (err) return res.status(500).json({ error: 'User registration failed' });
+        res.status(200).json({ message: 'User registered successfully' });
+    });
+});
+
+// User login endpoint
+app.post('/login', (req, res) => {
+    const { username, password } = req.body;
+
+    db.query('SELECT * FROM users WHERE username = ?', [username], async (err, results) => {
+        if (err || results.length === 0) return res.status(401).json({ error: 'Invalid credentials' });
+
+        const user = results[0];
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+
+        if (!isPasswordValid) return res.status(401).json({ error: 'Invalid credentials' });
+
+        const token = jwt.sign({ userId: user.id }, SECRET_KEY);
+        res.status(200).json({ token, username });
+    });
+});
+
+// Start the Express server for REST API
+app.listen(3001, () => {
+    console.log('Express server running on http://localhost:3001');
+});
+
+// WebSocket server
+const wss = new WebSocket.Server({ port: PORT }, () => {
+    console.log(`WebSocket server running on ws://localhost:${PORT}`);
+});
+
+wss.on('connection', (ws, req) => {
+    ws.on('message', (message) => {
+        const parsedMessage = JSON.parse(message);
+        const { token, content } = parsedMessage;
+
+        try {
+            const { userId } = jwt.verify(token, SECRET_KEY);
+            db.query('SELECT username FROM users WHERE id = ?', [userId], (err, results) => {
+                if (err || results.length === 0) return;
+
+                const username = results[0].username;
+
+                // Save message to database
+                db.query('INSERT INTO messages (user_id, content) VALUES (?, ?)', [userId, content]);
+
+                // Broadcast message to all clients
+                wss.clients.forEach((client) => {
+                    if (client.readyState === WebSocket.OPEN) {
+                        client.send(JSON.stringify({ username, content }));
+                    }
+                });
+            });
+        } catch (error) {
+            console.log('Invalid token');
+        }
+    });
+});
