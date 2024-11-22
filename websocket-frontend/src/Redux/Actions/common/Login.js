@@ -1,18 +1,19 @@
-import Swal from 'sweetalert2';
-import { LOGIN_ERROR, LOGIN_SUCCESS } from '../../Types/common/Types';
+import Swal from "sweetalert2";
+import { LOGIN_ERROR, LOGIN_SUCCESS } from "../../Types/common/Types";
 import { LoginApi } from "../../Apis/common/ApiConfig";
+import { toast } from "react-toastify";
 
 export const LoginSuccess = (res) => {
-    return {
-        type: LOGIN_SUCCESS,
-        payload: res,
-    };
+  return {
+    type: LOGIN_SUCCESS,
+    payload: res,
+  };
 };
 export const LoginError = (error) => {
-    return {
-        type: LOGIN_ERROR,
-        error: error,
-    };
+  return {
+    type: LOGIN_ERROR,
+    error: error,
+  };
 };
 
 export const LoginActionHandler = (data) => {
@@ -22,13 +23,15 @@ export const LoginActionHandler = (data) => {
         .then((res) => {
           const errorMessage = res?.message;
           if (res) {
-            if (res && res.data && res.status === 'success') {
-              Swal.fire({
-                position: "center",
-                icon: "success",
-                title: "Login Succesfully!",
-                showConfirmButton: false,
-                timer: 1500,
+            if (res && res.data && res.status === "success") {
+              toast.success("Login Succesfully!", {
+                position: "top-right",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
               });
               dispatch(LoginSuccess(res.data));
             } else {
@@ -37,7 +40,7 @@ export const LoginActionHandler = (data) => {
                 icon: "error",
                 title: errorMessage,
                 showConfirmButton: false,
-                text: "Something went wrong!",
+                text: "Oops! Something went wrong.",
                 timer: 1500,
               });
               dispatch(LoginError(errorMessage));

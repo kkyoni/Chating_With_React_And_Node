@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
+import { useNavigate } from "react-router-dom";
 
 function UserChatModel({
+  storiesFlag,
   receiverData,
   chatListData,
   userId,
@@ -8,13 +10,29 @@ function UserChatModel({
   setMessage,
   handleSendMessage,
 }) {
+  const navigate = useNavigate();
   const userListImage = "images/avatar/";
+
+  const handleStories = (receiverData) => {
+    navigate(`/stories/${receiverData.id}`);
+  };
 
   return (
     <div className="tyn-main tyn-chat-content" id="tynMain">
       <div className="tyn-chat-head">
         <div className="tyn-media-group">
-          <div className="tyn-media tyn-size-lg d-none d-sm-inline-flex">
+          <div
+            className="tyn-media tyn-size-lg d-none d-sm-inline-flex"
+            style={
+              storiesFlag
+                ? {
+                    borderRadius: "var(--tyn-shape)",
+                    border: "3px solid green",
+                  }
+                : null
+            }
+            onClick={storiesFlag ? () => handleStories(receiverData) : null}
+          >
             <img
               src={`${userListImage}${receiverData?.avatar}`}
               alt={receiverData?.username}
@@ -31,7 +49,6 @@ function UserChatModel({
         </div>
       </div>
 
-      {/* Chat body and reply area */}
       <div
         className="tyn-chat-body js-scroll-to-end"
         id="tynChatBody"
@@ -44,49 +61,66 @@ function UserChatModel({
           >
             <div className="simplebar-content" style={{ padding: "0px" }}>
               <div className="tyn-reply" id="tynReply">
-                {chatListData.map((chatlist, index) => (
-                  <div
-                    key={index}
-                    className={`tyn-reply-item ${
-                      userId === chatlist.sender_id ? "outgoing" : "incoming"
-                    }`}
-                  >
-                    <div className="tyn-reply-group">
-                      <div className="tyn-reply-bubble">
-                        <div className="tyn-reply-text">{chatlist.content}</div>
+                {chatListData.length > 0 ? (
+                  chatListData
+                    .sort((b, a) => a.id - b.id)
+                    .map((chatlist) => (
+                      <div
+                        key={chatlist.id}
+                        className={`tyn-reply-item ${
+                          userId === chatlist.sender_id
+                            ? "outgoing"
+                            : "incoming"
+                        }`}
+                      >
+                        <div className="tyn-reply-group">
+                          <div className="tyn-reply-bubble">
+                            <div className="tyn-reply-text">
+                              {chatlist.content}
+                              {chatlist.file_url && (
+                                <a
+                                  href={chatlist.file_url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                >
+                                  <img
+                                    src={chatlist.file_url}
+                                    alt="attachment"
+                                    style={{ maxWidth: "100px" }}
+                                  />
+                                </a>
+                              )}
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                    </div>
+                    ))
+                ) : (
+                  <div className="tyn-reply-separator">
+                    Start New Conversation
                   </div>
-                ))}
+                )}
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Chat form */}
       <div className="tyn-chat-form">
         <div className="tyn-chat-form-enter">
           <input
             className="tyn-chat-form-input"
             type="text"
             placeholder="Type a message..."
-            id="tynChatInput"
-            contentEditable={true}
             value={message}
             onChange={(e) => setMessage(e.target.value)}
           />
-          <ul className="tyn-list-inline me-n2 my-0">
-            <li>
-              <button
-                className="btn btn-icon btn-lg btn-primary"
-                id="sendBtn"
-                onClick={handleSendMessage}
-              >
-                Send
-              </button>
-            </li>
-          </ul>
+          <button
+            className="btn btn-icon btn-lg btn-primary"
+            onClick={handleSendMessage}
+          >
+            Send
+          </button>
         </div>
       </div>
     </div>

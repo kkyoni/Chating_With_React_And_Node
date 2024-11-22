@@ -3,13 +3,17 @@ import LoginReducer from "./common/LoginReducer.js";
 import UserListReducer from "./common/UserListReducer.js";
 import ChatListReducer from "./common/ChatListReducer.js";
 import UserReceiverReducer from "./common/UserReceiverReducer.js";
-import UserSearchListReducer from "./common/UserSearchListReducer.js";
+import UserProfileListReducer from "./common/UserProfileListReducer.js";
+import UpdateUserProfileListReducer from "./common/UserProfileListReducer.js";
+import UserStoriesListReducer from "./common/UserStoriesListReducer.js";
 
 const rootReducer = combineReducers({
-    LoginData: LoginReducer,
-    UserListData: UserListReducer,
-    ChatListData: ChatListReducer,
-    UserReceiverListData: UserReceiverReducer,
-    UserSearchListData: UserSearchListReducer,
+  LoginData: LoginReducer,
+  UserListData: UserListReducer,
+  ChatListData: ChatListReducer,
+  UserReceiverListData: UserReceiverReducer,
+  UserProfileListData: UserProfileListReducer,
+  UpdateUserProfileListData: UpdateUserProfileListReducer,
+  UserStoriesListData: UserStoriesListReducer,
 });
 export default rootReducer;

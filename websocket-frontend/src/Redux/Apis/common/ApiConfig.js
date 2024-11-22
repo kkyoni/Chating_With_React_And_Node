@@ -1,12 +1,10 @@
 import axios from "axios";
-let data = localStorage.getItem("userDetails");
-data = JSON.parse(data);
+
 export const LoginApi = async (data) => {
   try {
-    const { username, password } = data;
-
+    const { email, password } = data;
     const response = await axios.post("http://localhost:3001/login", {
-      username,
+      email,
       password,
     });
 
@@ -25,10 +23,32 @@ export const LoginApi = async (data) => {
   }
 };
 
-export const UserListApi = async (token) => {
+const getToken = () => {
   try {
+    const userDetails = localStorage.getItem("userDetails");
+    if (!userDetails) {
+      throw new Error("User not logged in");
+    }
+    const parsedData = JSON.parse(userDetails);
+    if (!parsedData.token) {
+      throw new Error("Token is missing in user details");
+    }
+    return parsedData.token;
+  } catch (error) {
+    console.error("Error retrieving token:", error);
+    return null;
+  }
+};
+
+export const UserListApi = async () => {
+  try {
+    const token = getToken();
+    if (!token) {
+      throw new Error("No valid token found");
+    }
+
     const response = await axios.get("http://localhost:3001/user_list", {
-      headers: { Authorization: `Bearer ${data.token}` },
+      headers: { Authorization: `Bearer ${token}` },
     });
 
     if (response && response.status === 200) {
@@ -48,9 +68,14 @@ export const UserListApi = async (token) => {
 
 export const ChatListApi = async (receiverID) => {
   try {
+    const token = getToken();
+    if (!token) {
+      throw new Error("No valid token found");
+    }
+
     const response = await axios.get("http://localhost:3001/chat_list", {
-      params: { receiverID },  // Pass receiverID as a query parameter
-      headers: { Authorization: `Bearer ${data.token}` },
+      params: { receiverID },
+      headers: { Authorization: `Bearer ${token}` },
     });
 
     if (response && response.status === 200) {
@@ -67,48 +92,145 @@ export const ChatListApi = async (receiverID) => {
     return { status: "error", message: "Error fetching Chat list", error: err };
   }
 };
-
 
 export const UserReceiverListApi = async (receiverID) => {
   try {
-    const response = await axios.get("http://localhost:3001/user_receiver_list", {
-      params: { receiverID },  // Pass receiverID as a query parameter
-      headers: { Authorization: `Bearer ${data.token}` },
-    });
+    const token = getToken();
+    if (!token) {
+      throw new Error("No valid token found");
+    }
+
+    const response = await axios.get(
+      "http://localhost:3001/user_receiver_list",
+      {
+        params: { receiverID },
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
 
     if (response && response.status === 200) {
       return {
         status: "success",
-        message: "Chat list retrieved successfully",
+        message: "User receiver list retrieved successfully",
         data: response.data,
       };
     } else {
-      return { status: "error", message: "Failed to retrieve Chat list" };
+      return {
+        status: "error",
+        message: "Failed to retrieve user receiver list",
+      };
     }
   } catch (err) {
-    console.error("Error in Chat List:", err);
-    return { status: "error", message: "Error fetching Chat list", error: err };
+    console.error("Error in User Receiver List:", err);
+    return {
+      status: "error",
+      message: "Error fetching user receiver list",
+      error: err,
+    };
   }
 };
 
-export const UserSearchListApi = async (value) => {
+export const UserProfileListApi = async () => {
   try {
-    const response = await axios.get("http://localhost:3001/user_search_list", {
-      params: { value },
-      headers: { Authorization: `Bearer ${data.token}` },
-    });
+    const token = getToken();
+    if (!token) {
+      throw new Error("No valid token found");
+    }
+
+    const response = await axios.get(
+      "http://localhost:3001/user_profile_list",
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
 
     if (response && response.status === 200) {
       return {
         status: "success",
-        message: "Chat list retrieved successfully",
+        message: "User Profile list retrieved successfully",
         data: response.data,
       };
     } else {
-      return { status: "error", message: "Failed to retrieve Chat list" };
+      return {
+        status: "error",
+        message: "Failed to retrieve user Profile list",
+      };
     }
   } catch (err) {
-    console.error("Error in Chat List:", err);
-    return { status: "error", message: "Error fetching Chat list", error: err };
+    console.error("Error in User Profile List:", err);
+    return {
+      status: "error",
+      message: "Error fetching user Profile list",
+      error: err,
+    };
+  }
+};
+
+export const UpdateUserProfileListApi = async (data) => {
+  try {
+    const token = getToken();
+    if (!token) {
+      throw new Error("No valid token found");
+    }
+
+    const { username } = data;
+
+    const response = await axios.put(
+      "http://localhost:3001/update_user_profile_list",
+      { username },
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+
+    if (response && response.status === 200) {
+      return {
+        status: "success",
+        message: "Profile updated successfully",
+        data: response.data,
+      };
+    } else {
+      return { status: "error", message: "Failed to update profile" };
+    }
+  } catch (err) {
+    console.error("Error updating profile:", err);
+    return { status: "error", message: "Profile update failed", error: err };
+  }
+};
+
+export const UserStoriesListApi = async (receiverID) => {
+  try {
+    const token = getToken();
+    if (!token) {
+      throw new Error("No valid token found");
+    }
+
+    const response = await axios.get(
+      "http://localhost:3001/user_stories_list",
+      {
+        params: { receiverID },
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+
+    if (response && response.status === 200) {
+      return {
+        status: "success",
+        message: "User receiver list retrieved successfully",
+        data: response.data,
+      };
+    } else {
+      return {
+        status: "error",
+        message: "Failed to retrieve user receiver list",
+      };
+    }
+  } catch (err) {
+    console.error("Error in User Receiver List:", err);
+    return {
+      status: "error",
+      message: "Error fetching user receiver list",
+      error: err,
+    };
   }
 };

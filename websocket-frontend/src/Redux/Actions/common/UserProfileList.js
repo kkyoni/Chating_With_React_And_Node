@@ -1,29 +1,29 @@
 import Swal from 'sweetalert2';
-import { USERSEARCHLIST_ERROR, USERSEARCHLIST_SUCCESS } from '../../Types/common/Types';
-import { UserSearchListApi } from "../../Apis/common/ApiConfig";
+import { USER_PROFILE_LIST_ERROR, USER_PROFILE_LIST_SUCCESS } from '../../Types/common/Types';
+import { UserProfileListApi } from "../../Apis/common/ApiConfig";
 
-export const UserSearchListSuccess = (res) => {
+export const UserProfileListSuccess = (res) => {
     return {
-        type: USERSEARCHLIST_SUCCESS,
+        type: USER_PROFILE_LIST_SUCCESS,
         payload: res,
     };
 };
-export const UserSearchListError = (error) => {
+export const UserProfileListError = (error) => {
     return {
-        type: USERSEARCHLIST_ERROR,
+        type: USER_PROFILE_LIST_ERROR,
         error: error,
     };
 };
 
-export const UserSearchListActionHandler = (value) => {
+export const UserProfileListActionHandler = () => {
   return (dispatch) => {
     try {
-      UserSearchListApi(value)
+      UserProfileListApi()
         .then((res) => {
           const errorMessage = res?.message;
           if (res) {
             if (res && res.data && res.status === 'success') {
-              dispatch(UserSearchListSuccess(res.data));
+              dispatch(UserProfileListSuccess(res.data));
             } else {
               Swal.fire({
                 position: "center",
@@ -33,17 +33,17 @@ export const UserSearchListActionHandler = (value) => {
                 text: "Something went wrong!",
                 timer: 1500,
               });
-              dispatch(UserSearchListError(errorMessage));
+              dispatch(UserProfileListError(errorMessage));
             }
           } else {
-            dispatch(UserSearchListError(errorMessage));
+            dispatch(UserProfileListError(errorMessage));
           }
         })
         .catch((err) => {
-          dispatch(UserSearchListError("Something Went Wrong!!!"));
+          dispatch(UserProfileListError("Something Went Wrong!!!"));
         });
     } catch (err) {
-      dispatch(UserSearchListError(err));
+      dispatch(UserProfileListError(err));
     }
   };
 };

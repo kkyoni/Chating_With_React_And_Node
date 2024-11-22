@@ -26,7 +26,7 @@ db.connect((err) => {
 app.use(
   cors({
     origin: "http://localhost:3000", // Allow requests from the frontend
-    methods: ["GET", "POST"], // Specify allowed HTTP methods
+    methods: ["GET", "POST", "PUT"], // Specify allowed HTTP methods
     credentials: true, // Allow cookies if needed
   })
 );
@@ -67,7 +67,10 @@ app.get("/user_list", async (req, res) => {
     db.query("SELECT * FROM users WHERE id != ?", [userId], (err, results) => {
       if (err) {
         console.error("Database query error:", err);
-        return res.status(500).json({ error: "Failed to retrieve user list", details: err.message });
+        return res.status(500).json({
+          error: "Failed to retrieve user list",
+          details: err.message,
+        });
       }
       res.status(200).json({ users: results });
     });
@@ -77,40 +80,64 @@ app.get("/user_list", async (req, res) => {
   }
 });
 
-
 app.get("/chat_list", async (req, res) => {
   try {
-    // Extract token from Authorization header
-    const token = req.headers.authorization?.split(" ")[1]; // Extract token from "Bearer <token>"
+    // Extract token from Authorization header (Bearer <token>)
+    const token = req.headers.authorization?.split(" ")[1];
 
+    // If token is not provided, return an error
     if (!token) {
       return res.status(403).json({ error: "No token provided" });
     }
 
-    // Verify the token and extract userId
-    const decoded = jwt.verify(token, SECRET_KEY);
-    const userId = decoded.userId; // Assuming the token payload has userId
+    // Verify the token and extract the userId
+    const decoded = jwt.verify(token, SECRET_KEY); // Assuming SECRET_KEY is defined
+    const userId = decoded.userId;
 
     console.log("Decoded User ID:", userId);
 
-    // Get receiverId from query parameters
+    // Extract receiverID from the query parameters
     const { receiverID } = req.query;
 
+    // If receiverID is not provided, return an error
     if (!receiverID) {
       return res.status(400).json({ error: "Receiver ID is required" });
     }
 
-    // SQL Query: Fetch messages between the user and the receiver
+    // SQL query to fetch chat messages between the user and the receiver
     db.query(
       "SELECT * FROM messages WHERE (sender_id = ? AND receiver_id = ?) OR (sender_id = ? AND receiver_id = ?) ORDER BY timestamp ASC",
       [userId, receiverID, receiverID, userId],
-      (err, results) => {
+      (err, messages) => {
         if (err) {
           console.error("Database query error:", err);
-          return res.status(500).json({ error: "Failed to retrieve chat messages", details: err.message });
+          return res.status(500).json({
+            error: "Failed to retrieve chat messages",
+            details: err.message,
+          });
         }
-        // Return the chat messages as the response
-        res.status(200).json({ messages: results });
+
+        // SQL query to count active stories for the receiver in the past 24 hours
+        const sql = `
+          SELECT COUNT(*) AS record_count 
+          FROM stories 
+          WHERE STATUS = 'active' 
+            AND user_id = ? 
+            AND created_at BETWEEN DATE_SUB(NOW(), INTERVAL 24 HOUR) AND NOW()
+        `;
+        db.query(sql, [receiverID], (err, storyResults) => {
+          if (err) {
+            console.error("Database query error:", err);
+            return res.status(500).json({ error: "Database error" });
+          }
+
+          // Determine if there are active stories and the number of such stories
+          const recordCount = storyResults[0]?.record_count || 0;
+          const flag = recordCount > 0;
+
+          // Send response with messages and story flag
+          res.status(200).json({ messages, flag });
+        });
       }
     );
   } catch (error) {
@@ -119,6 +146,66 @@ app.get("/chat_list", async (req, res) => {
   }
 });
 
+// app.get("/chat_list", async (req, res) => {
+//   try {
+//     // Extract token from Authorization header
+//     const token = req.headers.authorization?.split(" ")[1]; // Extract token from "Bearer <token>"
+
+//     if (!token) {
+//       return res.status(403).json({ error: "No token provided" });
+//     }
+
+//     // Verify the token and extract userId
+//     const decoded = jwt.verify(token, SECRET_KEY);
+//     const userId = decoded.userId; // Assuming the token payload has userId
+
+//     console.log("Decoded User ID:", userId);
+
+//     // Get receiverId from query parameters
+//     const { receiverID } = req.query;
+
+//     if (!receiverID) {
+//       return res.status(400).json({ error: "Receiver ID is required" });
+//     }
+
+//     // SQL Query: Fetch messages between the user and the receiver
+//     db.query(
+//       "SELECT * FROM messages WHERE (sender_id = ? AND receiver_id = ?) OR (sender_id = ? AND receiver_id = ?) ORDER BY timestamp ASC",
+//       [userId, receiverID, receiverID, userId],
+//       (err, results) => {
+//         if (err) {
+//           console.error("Database query error:", err);
+//           return res.status(500).json({
+//             error: "Failed to retrieve chat messages",
+//             details: err.message,
+//           });
+//         }
+
+//         const sql = `
+//         SELECT COUNT(*) AS record_count
+//         FROM stories
+//         WHERE STATUS = 'active'
+//           AND user_id = ?
+//           AND created_at BETWEEN DATE_SUB(NOW(), INTERVAL 24 HOUR) AND NOW()
+//       `;
+//         db.query(sql, [receiverID], (err, results) => {
+//           if (err) {
+//             console.error("Database query error:", err);
+//             return res.status(500).json({ error: "Database error" });
+//           }
+
+//           const recordCount = results[0]?.record_count || 0;
+//           const flag = recordCount > 0;
+
+//           res.status(200).json({ messages: results, flag, recordCount });
+//         });
+//       }
+//     );
+//   } catch (error) {
+//     console.error("Token verification error:", error);
+//     return res.status(401).json({ error: "Invalid token" });
+//   }
+// });
 
 app.get("/user_receiver_list", async (req, res) => {
   try {
@@ -135,9 +222,11 @@ app.get("/user_receiver_list", async (req, res) => {
       (err, results) => {
         if (err) {
           console.error("Database query error:", err);
-          return res.status(500).json({ error: "Failed to retrieve user", details: err.message });
+          return res
+            .status(500)
+            .json({ error: "Failed to retrieve user", details: err.message });
         }
-        
+
         if (results.length === 0) {
           return res.status(404).json({ error: "User not found" });
         }
@@ -152,50 +241,154 @@ app.get("/user_receiver_list", async (req, res) => {
   }
 });
 
-app.get("/user_search_list", async (req, res) => {
+app.get("/user_profile_list", async (req, res) => {
   try {
-    const { value } = req.query; // Get the search term from query parameters
-    // console.log("req.query",req.query);
-    // Ensure the search term is provided
-    if (!value || value.trim() === "") {
-      return res.status(400).json({ error: "Search term is required" });
+    // Extract token from Authorization header
+    const token = req.headers.authorization?.split(" ")[1]; // Extract token from "Bearer <token>"
+
+    if (!token) {
+      return res.status(403).json({ error: "No token provided" });
     }
 
-    // SQL Query: Search for users where the username contains the search term
+    // Verify the token and extract userId
+    const decoded = jwt.verify(token, SECRET_KEY);
+    const userId = decoded.userId; // Assuming the token payload has userId
+
+    console.log("Decoded User ID:", userId);
+
+    // SQL Query: Fetch a single user by ID
     db.query(
-      "SELECT * FROM users WHERE username LIKE ?",
-      [`%${value}%`], // `%value%` is the LIKE query for partial matching
+      "SELECT * FROM users WHERE id = ? LIMIT 1",
+      [userId],
       (err, results) => {
         if (err) {
           console.error("Database query error:", err);
-          return res.status(500).json({ error: "Failed to retrieve users", details: err.message });
-        }
-        
-        if (results.length === 0) {
-          return res.status(404).json({ error: "No users found" });
+          return res
+            .status(500)
+            .json({ error: "Failed to retrieve user", details: err.message });
         }
 
-        // Return the matching user data
-        res.status(200).json({ users: results });
+        if (results.length === 0) {
+          return res.status(404).json({ error: "User not found" });
+        }
+
+        // Return the user data as the response
+        res.status(200).json({ user: results[0] }); // Return only the first record
       }
     );
   } catch (error) {
-    console.error("Error:", error);
-    return res.status(500).json({ error: "An error occurred while processing the request" });
+    console.error("Token verification error:", error);
+    return res.status(401).json({ error: "Invalid token" });
   }
 });
 
+app.put("/update_user_profile_list", async (req, res) => {
+  try {
+    // Extract token from Authorization header
+    const token = req.headers.authorization?.split(" ")[1]; // Extract token from "Bearer <token>"
 
+    if (!token) {
+      return res.status(403).json({ error: "No token provided" });
+    }
 
+    // Verify the token and extract userId
+    const decoded = jwt.verify(token, SECRET_KEY);
+    const userId = decoded.userId; // Assuming the token payload has userId
 
+    console.log("Decoded User ID:", userId);
+
+    // Extract the username from request body
+    const { username } = req.body;
+
+    if (!username) {
+      return res.status(400).json({ error: "Username is required" });
+    }
+
+    // SQL Query: Update the user's username
+    const updateQuery = "UPDATE users SET username = ? WHERE id = ?";
+
+    db.query(updateQuery, [username, userId], (err, results) => {
+      if (err) {
+        console.error("Database update error:", err);
+        return res.status(500).json({
+          error: "Failed to update user profile",
+          details: err.message,
+        });
+      }
+
+      if (results.affectedRows === 0) {
+        return res
+          .status(404)
+          .json({ error: "User not found or no changes made" });
+      }
+
+      // Return a success message
+      res.status(200).json({ message: "User profile updated successfully" });
+    });
+  } catch (error) {
+    console.error("Token verification error:", error);
+    return res.status(401).json({ error: "Invalid token" });
+  }
+});
+
+app.get("/user_stories_list", async (req, res) => {
+  try {
+    // Extracting receiverID from query parameters
+    const { receiverID } = req.query;
+
+    if (!receiverID) {
+      return res.status(400).json({ error: "Receiver ID is required" });
+    }
+
+    // SQL Query to retrieve active stories and associated images for the specified user
+    const sqlQuery = `
+      SELECT 
+          s.id AS story_id,                    
+          s.user_id,                           
+          s.created_at AS story_created_at,    
+          si.id AS image_id,                   
+          si.images_stories,                   
+          si.viewers,                          
+          si.title,                          
+          si.created_at AS image_created_at    
+      FROM 
+          stories AS s
+      JOIN 
+          stories_images AS si
+      ON 
+          s.id = si.stories_id                 
+      WHERE 
+          s.status = 'active' 
+          AND s.user_id = ?
+          AND s.created_at BETWEEN DATE_SUB(NOW(), INTERVAL 24 HOUR) AND NOW()
+    `;
+
+    // Perform the query with receiverID as a parameter
+    db.query(sqlQuery, [receiverID], (err, results) => {
+      if (err) {
+        console.error("Database query error:", err);
+        return res.status(500).json({
+          error: "Failed to retrieve stories and images",
+          details: err.message,
+        });
+      }
+
+      // Return the results as a JSON response
+      res.status(200).json({ stories: results });
+    });
+  } catch (error) {
+    console.error("Unexpected error:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+});
 
 // User login endpoint
 app.post("/login", (req, res) => {
-  const { username, password } = req.body;
+  const { email, password } = req.body;
 
   db.query(
-    "SELECT * FROM users WHERE username = ?",
-    [username],
+    "SELECT * FROM users WHERE email = ?",
+    [email],
     async (err, results) => {
       if (err || results.length === 0)
         return res.status(401).json({ error: "Invalid credentials" });
@@ -207,7 +400,7 @@ app.post("/login", (req, res) => {
         return res.status(401).json({ error: "Invalid credentials" });
 
       const token = jwt.sign({ userId: user.id }, SECRET_KEY);
-      res.status(200).json({ token, username });
+      res.status(200).json({ token, email });
     }
   );
 });
@@ -238,20 +431,22 @@ wss.on("connection", (ws, req) => {
           if (err) {
             return ws.send(JSON.stringify({ error: "Error saving message" }));
           }
-      
+
           const insertedId = result.insertId;
-      
+
           // Query the inserted row to get the timestamp
           db.query(
             "SELECT timestamp FROM messages WHERE id = ?",
             [insertedId],
             (err, rows) => {
               if (err || rows.length === 0) {
-                return ws.send(JSON.stringify({ error: "Error retrieving timestamp" }));
+                return ws.send(
+                  JSON.stringify({ error: "Error retrieving timestamp" })
+                );
               }
-      
+
               const timestamp = rows[0].timestamp;
-      
+
               // Broadcast message to the receiver only
               wss.clients.forEach((client) => {
                 if (client.readyState === WebSocket.OPEN) {
@@ -275,7 +470,6 @@ wss.on("connection", (ws, req) => {
     }
   });
 });
-
 
 // Start the Express server for REST API
 // app.listen(3001, () => {

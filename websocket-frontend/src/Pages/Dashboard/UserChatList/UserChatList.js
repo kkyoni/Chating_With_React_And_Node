@@ -2,19 +2,18 @@ import React, { useState, useEffect } from "react";
 
 function UserChatList({ userListData, openChatModel }) {
   const userListImage = "images/avatar/";
-  const [searchValue, setSearchValue] = useState(""); // State to hold the search value
-  const [filteredUserList, setFilteredUserList] = useState(userListData); // State to hold filtered user list
+  const [searchValue, setSearchValue] = useState(""); 
+  const [filteredUserList, setFilteredUserList] = useState(userListData);
 
   useEffect(() => {
-    // Filter the user list when searchValue changes
     const filteredList = userListData.filter((user) =>
-      user.username.toLowerCase().includes(searchValue.toLowerCase()) // Search match
+      user.username.toLowerCase().includes(searchValue.toLowerCase())
     );
-    setFilteredUserList(filteredList); // Update filtered list
-  }, [searchValue, userListData]); // Re-run effect when searchValue or userListData changes
+    setFilteredUserList(filteredList); 
+  }, [searchValue, userListData]); 
 
   const handleSearchChange = (e) => {
-    setSearchValue(e.target.value); // Update search value on input change
+    setSearchValue(e.target.value); 
   };
 
   return (

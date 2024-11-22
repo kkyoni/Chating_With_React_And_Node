@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { UserListActionHandler } from "../../Redux/Actions/common/UserList";
@@ -11,13 +11,16 @@ import UserChatModel from "./UserChatModel/UserChatModel";
 function Dashboard() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [userListData, setuserListData] = useState([]);
+  const [userListData, setUserListData] = useState([]);
   const [chatListData, setChatListData] = useState([]);
   const [receiverId, setReceiverId] = useState("");
   const [receiverData, setReceiverData] = useState();
   const [message, setMessage] = useState("");
   const [chatModel, setChatModel] = useState(false);
   const [ws, setWs] = useState(null);
+  const [userId, setUserId] = useState(null);
+  const [storiesFlag, setStoriesFlag] = useState(false);
+
   const userlistdata = useSelector(
     (state) => state?.UserListData?.user_list_data
   );
@@ -34,7 +37,7 @@ function Dashboard() {
 
   useEffect(() => {
     if (userlistdata) {
-      setuserListData(userlistdata.users);
+      setUserListData(userlistdata.users);
     }
   }, [userlistdata]);
 
@@ -47,12 +50,20 @@ function Dashboard() {
 
   useEffect(() => {
     if (chatlistdata) {
-      setReceiverData(userreceiverlistdata.user);
-      setChatListData(chatlistdata.messages);
+      setReceiverData(userreceiverlistdata?.user);
+      setChatListData(chatlistdata?.messages);
+      setStoriesFlag(chatlistdata.flag);
     }
   }, [chatlistdata, userreceiverlistdata]);
 
-  const userId = useMemo(() => getUserIdFromToken(), []);
+  useEffect(() => {
+    const userId = getUserIdFromToken();
+    if (!userId) {
+      navigate("/login");
+    } else {
+      setUserId(userId);
+    }
+  }, [navigate]);
 
   useEffect(() => {
     const data = localStorage.getItem("userDetails");
@@ -71,6 +82,7 @@ function Dashboard() {
               sender_id: data.senderId,
               receiver_id: data.receiverId,
               content: data.content,
+              images: data.images,
               timestamp: data.timestamp,
             },
           ]);
@@ -96,12 +108,12 @@ function Dashboard() {
       }
     }
   };
-
   return (
     <div className="tyn-content tyn-content-full-height tyn-chat has-aside-base">
       <UserChatList userListData={userListData} openChatModel={openChatModel} />
       {chatModel ? (
         <UserChatModel
+          storiesFlag={storiesFlag}
           receiverData={receiverData}
           chatListData={chatListData}
           userId={userId}
@@ -112,10 +124,10 @@ function Dashboard() {
       ) : (
         <div style={{ textAlign: "center", display: "block", flex: "auto" }}>
           <div
-            class="tyn-appbar-logo"
-            style={{ top: "40%", position: "relative" }}
+            className="tyn-appbar-logo"
+            style={{ top: "40%", position: "relative", border: "none" }}
           >
-            <div class="tyn-logo size">
+            <div className="tyn-logo size">
               <svg
                 viewBox="0 0 43 40"
                 fill="none"

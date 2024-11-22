@@ -1,10 +1,30 @@
 import React, { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { Dropdown, Space } from "antd";
+import { UserProfileListActionHandler } from "../../Redux/Actions/common/UserProfileList";
 
 function Header() {
-  let dispatch = useDispatch();
+  const userListImage = "images/avatar/";
+  const dispatch = useDispatch();
   let Navigate = useNavigate();
+  const [userProfileData, setUserProfileData] = useState([]);
+  const [themeMode, setThemeMode] = useState(
+    localStorage.getItem("themeMode") || "light"
+  );
+
+  const userprofilelistdata = useSelector(
+    (state) => state?.UserProfileListData?.user_profile_list_data
+  );
+
+  const toggleTheme = (theme) => {
+    setThemeMode(theme);
+    localStorage.setItem("themeMode", theme);
+  };
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-bs-theme", themeMode);
+  }, [themeMode]);
 
   const logoutHandler = () => {
     try {
@@ -15,11 +35,21 @@ function Header() {
       console.error("Error clearing localStorage:", error);
     }
   };
+
+  useEffect(() => {
+    dispatch(UserProfileListActionHandler());
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (userprofilelistdata) {
+      setUserProfileData(userprofilelistdata.user);
+    }
+  }, [userprofilelistdata]);
   return (
     <nav className="tyn-appbar">
       <div className="tyn-appbar-wrap">
         <div className="tyn-appbar-logo">
-          <div className="tyn-logo">
+          <Link to={"/"} className="tyn-logo">
             <svg
               viewBox="0 0 43 40"
               fill="none"
@@ -34,46 +64,227 @@ function Header() {
                 fill="#2563EB"
               ></path>
             </svg>
-          </div>
+          </Link>
         </div>
 
-        <div class="tyn-appbar-content">
-          <ul class="tyn-appbar-nav tyn-appbar-nav-start"></ul>
-          <ul class="tyn-appbar-nav tyn-appbar-nav-end">
-            <li class="tyn-appbar-item">
+        <div className="tyn-appbar-content">
+          <ul className="tyn-appbar-nav tyn-appbar-nav-start"></ul>
+          <ul className="tyn-appbar-nav tyn-appbar-nav-end">
+            <li className="tyn-appbar-item" style={{ marginTop: "10px" }}>
               <div
-                class="tyn-appbar-link dropdown-toggle"
-                data-bs-toggle="dropdown"
-                href="#"
-                data-bs-offset="0,10"
-                data-bs-auto-close="outside"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  fill="currentColor"
-                  class="bi bi-app-indicator"
-                  viewBox="0 0 16 16"
-                >
-                  <path d="M5.5 2A3.5 3.5 0 0 0 2 5.5v5A3.5 3.5 0 0 0 5.5 14h5a3.5 3.5 0 0 0 3.5-3.5V8a.5.5 0 0 1 1 0v2.5a4.5 4.5 0 0 1-4.5 4.5h-5A4.5 4.5 0 0 1 1 10.5v-5A4.5 4.5 0 0 1 5.5 1H8a.5.5 0 0 1 0 1z"></path>
-                  <path d="M16 3a3 3 0 1 1-6 0 3 3 0 0 1 6 0"></path>
-                </svg>
-              </div>
-            </li>
-            <li class="tyn-appbar-item">
-              <a
-                class="d-inline-flex dropdown-toggle"
+                className="d-inline-flex dropdown-toggle"
                 data-bs-auto-close="outside"
                 data-bs-toggle="dropdown"
-                href="#"
                 data-bs-offset="0,10"
                 aria-expanded="false"
               >
-                <div class="tyn-media tyn-size-lg tyn-circle">
-                  <img src="images/avatar/3.jpg" alt="" />
+                <div className="tyn-media tyn-size-lg tyn-circle">
+                  <Dropdown
+                    menu={{
+                      items: [
+                        {
+                          label: (
+                            <div className="dropdown-gap">
+                              <div className="tyn-media-group">
+                                <div className="tyn-media tyn-size-lg">
+                                  <img
+                                    src={`${userListImage}${userProfileData.avatar}`}
+                                    alt={userProfileData.username}
+                                  />
+                                </div>
+                                <div className="tyn-media-col">
+                                  <div className="tyn-media-row">
+                                    <h6 className="name">
+                                      {userProfileData.username}
+                                    </h6>
+                                    <div className="indicator varified">
+                                      <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        width="16"
+                                        height="16"
+                                        fill="currentColor"
+                                        className="bi bi-check-circle-fill"
+                                        viewBox="0 0 16 16"
+                                      >
+                                        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"></path>
+                                      </svg>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          ),
+                        },
+                        { type: "divider" },
+                        {
+                          label: (
+                            <div className="dropdown-gap">
+                              <div className="d-flex gap gap-2">
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="16"
+                                  height="16"
+                                  fill="currentColor"
+                                  className="bi bi-moon-fill"
+                                  viewBox="0 0 16 16"
+                                >
+                                  <path d="M6 .278a.77.77 0 0 1 .08.858 7.2 7.2 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277q.792-.001 1.533-.16a.79.79 0 0 1 .81.316.73.73 0 0 1-.031.893A8.35 8.35 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.75.75 0 0 1 6 .278"></path>
+                                </svg>
+                                <div>
+                                  <h6>Darkmode</h6>
+                                  <ul className="d-flex align-items-center gap gap-3">
+                                    <li className="inline-flex">
+                                      <div className="form-check">
+                                        <input
+                                          className="form-check-input"
+                                          type="radio"
+                                          name="themeMode"
+                                          id="dark"
+                                          value="dark"
+                                          onChange={() => toggleTheme("dark")}
+                                          checked={themeMode === "dark"}
+                                        />
+                                        <label
+                                          className="form-check-label small"
+                                          for="dark"
+                                        >
+                                          {" "}
+                                          On{" "}
+                                        </label>
+                                      </div>
+                                    </li>
+                                    <li className="inline-flex">
+                                      <div className="form-check">
+                                        <input
+                                          className="form-check-input"
+                                          type="radio"
+                                          name="themeMode"
+                                          id="light"
+                                          value="light"
+                                          onChange={() => toggleTheme("light")}
+                                          checked={themeMode === "light"}
+                                        />
+                                        <label
+                                          className="form-check-label small"
+                                          for="light"
+                                        >
+                                          {" "}
+                                          Off{" "}
+                                        </label>
+                                      </div>
+                                    </li>
+                                  </ul>
+                                </div>
+                              </div>
+                            </div>
+                          ),
+                        },
+                        { type: "divider" },
+                        {
+                          label: (
+                            <ul className="tyn-list-links">
+                              <li>
+                                <Link to={"/profile"}>
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="16"
+                                    height="16"
+                                    fill="currentColor"
+                                    className="bi bi-person"
+                                    viewBox="0 0 16 16"
+                                  >
+                                    <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10s-3.516.68-4.168 1.332c-.678.678-.83 1.418-.832 1.664z"></path>
+                                  </svg>
+                                  <span>Profile</span>
+                                </Link>
+                              </li>
+                              <li>
+                                <a href="profile.html#profile-settings">
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="16"
+                                    height="16"
+                                    fill="currentColor"
+                                    className="bi bi-gear"
+                                    viewBox="0 0 16 16"
+                                  >
+                                    <path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492M5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0"></path>
+                                    <path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.291-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.291c.415.764-.42 1.6-1.185 1.184l-.291-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.42-1.184-1.185l.159-.291A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.377l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115z"></path>
+                                  </svg>
+                                  <span>Settings</span>
+                                </a>
+                              </li>
+                              <li>
+                                <Link to={"/addStoriesSettings"}>
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="16"
+                                    height="16"
+                                    fill="currentColor"
+                                    class="bi bi-subtract"
+                                    viewBox="0 0 16 16"
+                                  >
+                                    <path d="M0 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2H2a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1z"></path>
+                                  </svg>
+                                  <span>Stories</span>
+                                </Link>
+                              </li>
+                              <li>
+                                <a href="profile.html#profile-change-password">
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="16"
+                                    height="16"
+                                    fill="currentColor"
+                                    className="bi bi-unlock"
+                                    viewBox="0 0 16 16"
+                                  >
+                                    <path d="M11 1a2 2 0 0 0-2 2v4a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h5V3a3 3 0 0 1 6 0v4a.5.5 0 0 1-1 0V3a2 2 0 0 0-2-2M3 8a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1z"></path>
+                                  </svg>
+                                  <span>Change Password</span>
+                                </a>
+                              </li>
+                            </ul>
+                          ),
+                        },
+                        { type: "divider" },
+                        {
+                          label: (
+                            <ul className="tyn-list-links">
+                              <li>
+                                <Link onClick={logoutHandler}>
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="16"
+                                    height="16"
+                                    fill="currentColor"
+                                    className="bi bi-power"
+                                    viewBox="0 0 16 16"
+                                  >
+                                    <path d="M7.5 1v7h1V1z"></path>
+                                    <path d="M3 8.812a5 5 0 0 1 2.578-4.375l-.485-.874A6 6 0 1 0 11 3.616l-.501.865A5 5 0 1 1 3 8.812"></path>
+                                  </svg>
+                                  <span>Log Out</span>
+                                </Link>
+                              </li>
+                            </ul>
+                          ),
+                        },
+                      ],
+                    }}
+                    trigger={["click"]}
+                  >
+                    <div onClick={(e) => e.preventDefault()}>
+                      <Space>
+                        <img
+                          src={`${userListImage}${userProfileData.avatar}`}
+                          alt={userProfileData.username}
+                        />
+                      </Space>
+                    </div>
+                  </Dropdown>
                 </div>
-              </a>
+              </div>
             </li>
           </ul>
         </div>

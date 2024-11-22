@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import "./Login.css";
-import { Form, Input, Button, Checkbox } from "antd";
+import { Form, Input, Button } from "antd";
 import { LoginActionHandler } from "../../Redux/Actions/common/Login";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -21,59 +21,62 @@ function Login() {
       localStorage.setItem("userDetails", JSON.stringify(logindata));
       Navigate("/");
     }
-  }, [logindata]);
+  }, [logindata, Navigate]);
 
   useEffect(() => {
     let token = localStorage.getItem("userDetails");
     if (token) {
       Navigate("/");
     }
-  }, []);
+  }, [Navigate]);
+
   return (
-    <div class="d-lg-flex half">
+    <div className="d-lg-flex half">
       <div
-        class="bg order-1 order-md-2"
+        className="bg order-1 order-md-2"
         style={{ backgroundImage: `url(${bgImage})` }}
       ></div>
-      <div class="contents order-2 order-md-1">
-        <div class="container">
-          <div class="row align-items-center justify-content-center">
-            <div class="col-md-7">
+      <div className="contents order-2 order-md-1">
+        <div className="container">
+          <div className="row align-items-center justify-content-center">
+            <div className="col-md-7">
               <h3>
                 Login to <strong>Colorlib</strong>
               </h3>
-              <p class="mb-4">
+              <p className="mb-4">
                 Lorem ipsum dolor sit amet elit. Sapiente sit aut eos
                 consectetur adipisicing.
               </p>
               <Form
                 name="loginForm"
-                initialValues={{ username: "", password: "" }}
+                initialValues={{ email: "", password: "" }}
                 onFinish={onFinish}
                 className="modal-content animate loginForm"
               >
-
-                <div class="form-group first">
-                  <label for="username">Username</label>
+                <div className="form-group first">
+                  <label htmlFor="username">Email</label>
                   <Form.Item
-                    name="username"
+                    name="email"
                     rules={[
-                      { required: true, message: "Please input your username!" },
                       {
-                        type: "username",
-                        message: "Please enter a valid username address",
+                        required: true,
+                        message: "Please input your Email!",
+                      },
+                      {
+                        type: "Email",
+                        message: "Please enter a valid Email address",
                       },
                     ]}
                   >
                     <Input
-                      placeholder="Enter your username"
-                      class="form-control"
+                      placeholder="Enter your Email"
+                      className="form-control"
                       id="username"
                     />
                   </Form.Item>
                 </div>
-                <div class="form-group last mb-3">
-                  <label for="password">Password</label>
+                <div className="form-group last mb-3">
+                  <label htmlFor="password">Password</label>
                   <Form.Item
                     name="password"
                     rules={[
@@ -89,7 +92,7 @@ function Login() {
                   >
                     <Input.Password
                       placeholder="Enter your password"
-                      class="form-control"
+                      className="form-control"
                       id="password"
                     />
                   </Form.Item>
