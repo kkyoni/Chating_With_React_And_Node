@@ -13,7 +13,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"email\" : \"jaymin@gmail.com\",\n    \"password\" : \"data@1234\"\n}",
+					"raw": "{\n    \"email\" : \"harshil@gmail.com\",\n    \"password\" : \"data@1234\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -96,6 +96,44 @@
 					"port": "3001",
 					"path": [
 						"user_list"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "User View Stories List Api",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTczMjYxNzQzMn0.JNBJNhhzZyW-ZrCMSEnd8f_6_-9WPoaekHF-IGxAp7k",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"id\" : 1,\n    \"stories_id\" : 1,\n    \"receiverID\" : 2\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3001/user_view_stories_list",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"user_view_stories_list"
 					]
 				}
 			},
@@ -254,6 +292,68 @@
 					"port": "3001",
 					"path": [
 						"user_profile_list"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get User Stories List",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMsImlhdCI6MTczMjk1ODY0OX0.gTaqbZybafyh7wCFrCnQ6A2KuRt9NWl0mSIhogzSIqQ",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3001/get_user_stories_list",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"get_user_stories_list"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "AddStoriesListApi",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTczMjUzMjQxM30.N_uYlVNRJWO9cg0Jnxeh1gc6pHQ0S7fgweQ05BBgfFU",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": []
+				},
+				"url": {
+					"raw": "http://localhost:3001/add_stories_list",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"add_stories_list"
 					]
 				}
 			},
