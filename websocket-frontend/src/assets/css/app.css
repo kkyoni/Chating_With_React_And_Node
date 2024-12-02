@@ -903,7 +903,7 @@ dl {
   --radius-small: .25rem;
   --avatar-gap: .75rem;
   padding: 1rem 0;
-  display: flex;
+  /* display: flex; */
   flex-direction: column-reverse;
 }
 [data-bs-theme=dark] .tyn-reply {
@@ -1174,7 +1174,8 @@ dl {
   border-top: 1px solid var(--border-color);
 }
 .tyn-chat-form-insert {
-  padding: calc(var(--content-gap-y) + 0.25rem) var(--content-gap-x);
+  /* padding: calc(var(--content-gap-y) + 0.25rem) var(--content-gap-x); */
+  padding: calc(var(--content-gap-y) + -0.25rem) var(--content-gap-x);
 }
 .tyn-chat-form-enter {
   padding: var(--content-gap-y) var(--content-gap-x) var(--content-gap-y) 0;

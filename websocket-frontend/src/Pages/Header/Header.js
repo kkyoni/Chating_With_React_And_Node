@@ -7,7 +7,7 @@ import { UserProfileListActionHandler } from "../../Redux/Actions/common/UserPro
 function Header() {
   const userListImage = "images/avatar/";
   const dispatch = useDispatch();
-  let Navigate = useNavigate();
+  const Navigate = useNavigate();
   const [userProfileData, setUserProfileData] = useState([]);
   const [themeMode, setThemeMode] = useState(
     localStorage.getItem("themeMode") || "light"
@@ -45,6 +45,7 @@ function Header() {
       setUserProfileData(userprofilelistdata.user);
     }
   }, [userprofilelistdata]);
+
   return (
     <nav className="tyn-appbar">
       <div className="tyn-appbar-wrap">
@@ -221,12 +222,27 @@ function Header() {
                                     width="16"
                                     height="16"
                                     fill="currentColor"
-                                    class="bi bi-subtract"
+                                    className="bi bi-subtract"
                                     viewBox="0 0 16 16"
                                   >
                                     <path d="M0 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2H2a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1z"></path>
                                   </svg>
                                   <span>Stories</span>
+                                </Link>
+                              </li>
+                              <li>
+                                <Link to={"/faq"}>
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="16"
+                                    height="16"
+                                    fill="currentColor"
+                                    className="bi bi-question-octagon-fill"
+                                    viewBox="0 0 16 16"
+                                  >
+                                    <path d="M11.46.146A.5.5 0 0 0 11.107 0H4.893a.5.5 0 0 0-.353.146L.146 4.54A.5.5 0 0 0 0 4.893v6.214a.5.5 0 0 0 .146.353l4.394 4.394a.5.5 0 0 0 .353.146h6.214a.5.5 0 0 0 .353-.146l4.394-4.394a.5.5 0 0 0 .146-.353V4.893a.5.5 0 0 0-.146-.353zM5.496 6.033a.237.237 0 0 1-.24-.247C5.35 4.091 6.737 3.5 8.005 3.5c1.396 0 2.672.73 2.672 2.24 0 1.08-.635 1.594-1.244 2.057-.737.559-1.01.768-1.01 1.486v.105a.25.25 0 0 1-.25.25h-.81a.25.25 0 0 1-.25-.246l-.004-.217c-.038-.927.495-1.498 1.168-1.987.59-.444.965-.736.965-1.371 0-.825-.628-1.168-1.314-1.168-.803 0-1.253.478-1.342 1.134-.018.137-.128.25-.266.25h-.825zm2.325 6.443c-.584 0-1.009-.394-1.009-.927 0-.552.425-.94 1.01-.94.609 0 1.028.388 1.028.94 0 .533-.42.927-1.029.927"></path>
+                                  </svg>
+                                  <span>Faq</span>
                                 </Link>
                               </li>
                               <li>
@@ -243,6 +259,22 @@ function Header() {
                                   </svg>
                                   <span>Change Password</span>
                                 </a>
+                              </li>
+                              <li>
+                                <Link to={`/stories`}>
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="16"
+                                    height="16"
+                                    fill="currentColor"
+                                    className="bi bi-person-bounding-box"
+                                    viewBox="0 0 16 16"
+                                  >
+                                    <path d="M1.5 1a.5.5 0 0 0-.5.5v3a.5.5 0 0 1-1 0v-3A1.5 1.5 0 0 1 1.5 0h3a.5.5 0 0 1 0 1zM11 .5a.5.5 0 0 1 .5-.5h3A1.5 1.5 0 0 1 16 1.5v3a.5.5 0 0 1-1 0v-3a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 1-.5-.5M.5 11a.5.5 0 0 1 .5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 1 0 1h-3A1.5 1.5 0 0 1 0 14.5v-3a.5.5 0 0 1 .5-.5m15 0a.5.5 0 0 1 .5.5v3a1.5 1.5 0 0 1-1.5 1.5h-3a.5.5 0 0 1 0-1h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 1 .5-.5"></path>
+                                    <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm8-9a3 3 0 1 1-6 0 3 3 0 0 1 6 0"></path>
+                                  </svg>
+                                  <span>View Stories</span>
+                                </Link>
                               </li>
                             </ul>
                           ),

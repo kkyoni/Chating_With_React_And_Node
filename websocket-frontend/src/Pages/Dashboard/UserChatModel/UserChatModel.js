@@ -1,5 +1,8 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
+import "./UserChatModel.css";
+import Messages from "./Messages/Messages";
+import MessagesText from "./MessagesText/MessagesText";
 
 function UserChatModel({
   storiesFlag,
@@ -9,13 +12,18 @@ function UserChatModel({
   message,
   setMessage,
   handleSendMessage,
+  fileList,
+  handleChange,
+  handleRemove,
 }) {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const userListImage = "images/avatar/";
-
-  const handleStories = (receiverData) => {
-    navigate(`/stories/${receiverData.id}`);
-  };
+  // const handleStories = () => {
+  //   navigate(`/stories`);
+  // };
+  // const handleStories = (receiverData) => {
+  //   navigate(`/stories/${receiverData.id}`);
+  // };
 
   return (
     <div className="tyn-main tyn-chat-content" id="tynMain">
@@ -31,7 +39,8 @@ function UserChatModel({
                   }
                 : null
             }
-            onClick={storiesFlag ? () => handleStories(receiverData) : null}
+            // onClick={storiesFlag ? () => handleStories(receiverData) : null}
+            // onClick={storiesFlag ? handleStories() : null}
           >
             <img
               src={`${userListImage}${receiverData?.avatar}`}
@@ -48,81 +57,15 @@ function UserChatModel({
           </div>
         </div>
       </div>
-
-      <div
-        className="tyn-chat-body js-scroll-to-end"
-        id="tynChatBody"
-        data-simplebar="init"
-      >
-        <div className="simplebar-wrapper" style={{ margin: "0px" }}>
-          <div
-            className="simplebar-content-wrapper"
-            style={{ height: "100%", overflow: "hidden scroll" }}
-          >
-            <div className="simplebar-content" style={{ padding: "0px" }}>
-              <div className="tyn-reply" id="tynReply">
-                {chatListData.length > 0 ? (
-                  chatListData
-                    .sort((b, a) => a.id - b.id)
-                    .map((chatlist) => (
-                      <div
-                        key={chatlist.id}
-                        className={`tyn-reply-item ${
-                          userId === chatlist.sender_id
-                            ? "outgoing"
-                            : "incoming"
-                        }`}
-                      >
-                        <div className="tyn-reply-group">
-                          <div className="tyn-reply-bubble">
-                            <div className="tyn-reply-text">
-                              {chatlist.content}
-                              {chatlist.file_url && (
-                                <a
-                                  href={chatlist.file_url}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                >
-                                  <img
-                                    src={chatlist.file_url}
-                                    alt="attachment"
-                                    style={{ maxWidth: "100px" }}
-                                  />
-                                </a>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    ))
-                ) : (
-                  <div className="tyn-reply-separator">
-                    Start New Conversation
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="tyn-chat-form">
-        <div className="tyn-chat-form-enter">
-          <input
-            className="tyn-chat-form-input"
-            type="text"
-            placeholder="Type a message..."
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-          />
-          <button
-            className="btn btn-icon btn-lg btn-primary"
-            onClick={handleSendMessage}
-          >
-            Send
-          </button>
-        </div>
-      </div>
+      <Messages chatListData={chatListData} userId={userId} />
+      <MessagesText
+        message={message}
+        setMessage={setMessage}
+        handleSendMessage={handleSendMessage}
+        fileList={fileList}
+        handleChange={handleChange}
+        handleRemove={handleRemove}
+      />
     </div>
   );
 }

@@ -1,13 +1,13 @@
 import axios from "axios";
+const baseUrl = "http://localhost:3001";
 
 export const LoginApi = async (data) => {
   try {
     const { email, password } = data;
-    const response = await axios.post("http://localhost:3001/login", {
+    const response = await axios.post(`${baseUrl}/login`, {
       email,
       password,
     });
-
     if (response && response.status === 200) {
       return {
         status: "success",
@@ -47,7 +47,7 @@ export const UserListApi = async () => {
       throw new Error("No valid token found");
     }
 
-    const response = await axios.get("http://localhost:3001/user_list", {
+    const response = await axios.get(`${baseUrl}/user_list`, {
       headers: { Authorization: `Bearer ${token}` },
     });
 
@@ -73,7 +73,7 @@ export const ChatListApi = async (receiverID) => {
       throw new Error("No valid token found");
     }
 
-    const response = await axios.get("http://localhost:3001/chat_list", {
+    const response = await axios.get(`${baseUrl}/chat_list`, {
       params: { receiverID },
       headers: { Authorization: `Bearer ${token}` },
     });
@@ -100,13 +100,10 @@ export const UserReceiverListApi = async (receiverID) => {
       throw new Error("No valid token found");
     }
 
-    const response = await axios.get(
-      "http://localhost:3001/user_receiver_list",
-      {
-        params: { receiverID },
-        headers: { Authorization: `Bearer ${token}` },
-      }
-    );
+    const response = await axios.get(`${baseUrl}/user_receiver_list`, {
+      params: { receiverID },
+      headers: { Authorization: `Bearer ${token}` },
+    });
 
     if (response && response.status === 200) {
       return {
@@ -137,12 +134,9 @@ export const UserProfileListApi = async () => {
       throw new Error("No valid token found");
     }
 
-    const response = await axios.get(
-      "http://localhost:3001/user_profile_list",
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      }
-    );
+    const response = await axios.get(`${baseUrl}/user_profile_list`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
 
     if (response && response.status === 200) {
       return {
@@ -176,7 +170,7 @@ export const UpdateUserProfileListApi = async (data) => {
     const { username } = data;
 
     const response = await axios.put(
-      "http://localhost:3001/update_user_profile_list",
+      `${baseUrl}/update_user_profile_list`,
       { username },
       {
         headers: { Authorization: `Bearer ${token}` },
@@ -205,13 +199,147 @@ export const UserStoriesListApi = async (receiverID) => {
       throw new Error("No valid token found");
     }
 
-    const response = await axios.get(
-      "http://localhost:3001/user_stories_list",
-      {
-        params: { receiverID },
-        headers: { Authorization: `Bearer ${token}` },
-      }
+    const response = await axios.get(`${baseUrl}/user_stories_list`, {
+      params: { receiverID },
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (response && response.status === 200) {
+      return {
+        status: "success",
+        message: "User receiver list retrieved successfully",
+        data: response.data,
+      };
+    } else {
+      return {
+        status: "error",
+        message: "Failed to retrieve user receiver list",
+      };
+    }
+  } catch (err) {
+    console.error("Error in User Receiver List:", err);
+    return {
+      status: "error",
+      message: "Error fetching user receiver list",
+      error: err,
+    };
+  }
+};
+
+export const UserViewStoriesListApi = async (id, receiverID) => {
+  try {
+    const token = getToken();
+    if (!token) {
+      throw new Error("No valid token found");
+    }
+
+    const response = await axios.post(
+      `${baseUrl}/user_view_stories_list`,
+      { id, receiverID },
+      { headers: { Authorization: `Bearer ${token}` } }
     );
+
+    if (response && response.status === 200) {
+      return {
+        status: "success",
+        message: "User receiver list retrieved successfully",
+        data: response.data,
+      };
+    } else {
+      return {
+        status: "error",
+        message: "Failed to retrieve user receiver list",
+      };
+    }
+  } catch (err) {
+    console.error("Error in User Receiver List:", err);
+    return {
+      status: "error",
+      message: "Error fetching user receiver list",
+      error: err,
+    };
+  }
+};
+
+export const AddStoriesListApi = async (formData) => {
+  try {
+    const token = getToken();
+    if (!token) {
+      throw new Error("No valid token found");
+    }
+
+    const response = await axios.post(`${baseUrl}/add_stories_list`, formData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    if (response.status === 200) {
+      return {
+        status: "success",
+        message: "Image uploaded successfully",
+        data: response.data,
+      };
+    } else {
+      return {
+        status: "error",
+        message: response.data.message || "Image upload failed",
+      };
+    }
+  } catch (err) {
+    console.error("Error in AddStoriesListApi:", err);
+    return {
+      status: "error",
+      message: "An error occurred while uploading",
+      error: err,
+    };
+  }
+};
+
+export const UserSelfStoriesListApi = async () => {
+  try {
+    const token = getToken();
+    if (!token) {
+      throw new Error("No valid token found");
+    }
+
+    const response = await axios.get(`${baseUrl}/user_self_stories_list`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (response && response.status === 200) {
+      return {
+        status: "success",
+        message: "User receiver list retrieved successfully",
+        data: response.data,
+      };
+    } else {
+      return {
+        status: "error",
+        message: "Failed to retrieve user receiver list",
+      };
+    }
+  } catch (err) {
+    console.error("Error in User Receiver List:", err);
+    return {
+      status: "error",
+      message: "Error fetching user receiver list",
+      error: err,
+    };
+  }
+};
+
+export const UserGetStoriesListApi = async () => {
+  try {
+    const token = getToken();
+    if (!token) {
+      throw new Error("No valid token found");
+    }
+
+    const response = await axios.get(`${baseUrl}/get_user_stories_list`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
 
     if (response && response.status === 200) {
       return {

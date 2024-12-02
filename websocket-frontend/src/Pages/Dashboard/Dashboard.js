@@ -20,13 +20,16 @@ function Dashboard() {
   const [ws, setWs] = useState(null);
   const [userId, setUserId] = useState(null);
   const [storiesFlag, setStoriesFlag] = useState(false);
+  const [fileList, setFileList] = useState([]);
 
   const userlistdata = useSelector(
     (state) => state?.UserListData?.user_list_data
   );
+
   const chatlistdata = useSelector(
     (state) => state?.ChatListData?.chat_list_data
   );
+  
   const userreceiverlistdata = useSelector(
     (state) => state?.UserReceiverListData?.user_receiver_list_data
   );
@@ -75,6 +78,7 @@ function Dashboard() {
 
         websocket.onmessage = (event) => {
           const data = JSON.parse(event.data);
+
           setChatListData((prevChatListData) => [
             ...prevChatListData,
             {
@@ -93,21 +97,53 @@ function Dashboard() {
     }
   }, []);
 
-  const handleSendMessage = () => {
-    if (message && receiverId) {
+  const handleSendMessage = async () => {
+    if (receiverId) {
       const data = localStorage.getItem("userDetails");
       if (data) {
         const { token } = JSON.parse(data);
-        const messageData = JSON.stringify({
-          token,
-          receiver_id: receiverId,
-          content: message,
-        });
-        ws.send(messageData);
-        setMessage("");
+
+        const formData = new FormData();
+        fileList.forEach((file) =>
+          formData.append("images", file.originFileObj)
+        );
+
+        try {
+          const response = await fetch("http://localhost:3001/upload", {
+            method: "POST",
+            body: formData,
+          });
+
+          const { urls } = await response.json();
+
+          const messageData = {
+            token,
+            receiver_id: receiverId,
+            content: message,
+            fileList: urls.map((url) => ({
+              url,
+            })),
+          };
+
+          ws.send(JSON.stringify(messageData));
+
+          setMessage("");
+          setFileList([]);
+        } catch (error) {
+          console.error("Error uploading images:", error);
+        }
       }
     }
   };
+
+  const handleChange = ({ fileList: newFileList }) => {
+    setFileList(newFileList);
+  };
+
+  const handleRemove = (file) => {
+    setFileList((prevList) => prevList.filter((item) => item.uid !== file.uid));
+  };
+
   return (
     <div className="tyn-content tyn-content-full-height tyn-chat has-aside-base">
       <UserChatList userListData={userListData} openChatModel={openChatModel} />
@@ -120,6 +156,9 @@ function Dashboard() {
           message={message}
           setMessage={setMessage}
           handleSendMessage={handleSendMessage}
+          fileList={fileList}
+          handleChange={handleChange}
+          handleRemove={handleRemove}
         />
       ) : (
         <div style={{ textAlign: "center", display: "block", flex: "auto" }}>

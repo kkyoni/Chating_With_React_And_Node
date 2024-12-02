@@ -1,13 +1,15 @@
 import Dashboard from "../Pages/Dashboard/Dashboard";
 import Profile from "../Pages/Profile/Profile";
-import UserStories from "../Pages/Dashboard/UserChatModel/UserStories/UserStories";
+import Stories from "../Pages/Dashboard/UserChatModel/UserStories/Stories";
 import AddStoriesSettings from "../Pages/StoriesSettings/AddStoriesSettings";
+import Faq from "../Pages/Faq/Faq";
 
 const Pages = [
   { path: "", element: <Dashboard /> },
   { path: "/profile", element: <Profile /> },
   { path: "/addStoriesSettings", element: <AddStoriesSettings /> },
-  { path: "/stories/:id", element: <UserStories /> },
+  { path: "/stories", element: <Stories /> },
+  { path: "/faq", element: <Faq /> },
 ];
 
 export default Pages;

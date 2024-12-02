@@ -3,12 +3,12 @@ import { Link } from "react-router-dom";
 function NotFound() {
   return (
     <>
-      <div class="tyn-content tyn-content-page">
-        <div class="tyn-main">
-          <div class="tyn-section">
-            <div class="container">
-              <div class="tyn-text-block text-center pb-4 pb-lg-5">
-                <a class="tyn-logo" href="index.html">
+      <div className="tyn-content tyn-content-page">
+        <div className="tyn-main">
+          <div className="tyn-section">
+            <div className="container">
+              <div className="tyn-text-block text-center pb-4 pb-lg-5">
+                <a className="tyn-logo" href="index.html">
                   <svg
                     viewBox="0 0 43 40"
                     fill="none"
@@ -24,15 +24,15 @@ function NotFound() {
                     ></path>
                   </svg>
                 </a>
-                <h1 class="mt-3">404 - Page not found</h1>
-                <div class="mt-4">
-                  <Link class="btn btn-primary btn-rg btn-pill" to={"/"}>
+                <h1 className="mt-3">404 - Page not found</h1>
+                <div className="mt-4">
+                  <Link className="btn btn-primary btn-rg btn-pill" to={"/"}>
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       width="16"
                       height="16"
                       fill="currentColor"
-                      class="bi bi-send-fill"
+                      className="bi bi-send-fill"
                       viewBox="0 0 16 16"
                     >
                       <path d="M15.964.686a.5.5 0 0 0-.65-.65L.767 5.855H.766l-.452.18a.5.5 0 0 0-.082.887l.41.26.001.002 4.995 3.178 3.178 4.995.002.002.26.41a.5.5 0 0 0 .886-.083zm-1.833 1.89L6.637 10.07l-.215-.338a.5.5 0 0 0-.154-.154l-.338-.215 7.494-7.494 1.178-.471z"></path>

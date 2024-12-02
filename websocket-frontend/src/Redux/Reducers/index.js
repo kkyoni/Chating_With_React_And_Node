@@ -6,6 +6,10 @@ import UserReceiverReducer from "./common/UserReceiverReducer.js";
 import UserProfileListReducer from "./common/UserProfileListReducer.js";
 import UpdateUserProfileListReducer from "./common/UserProfileListReducer.js";
 import UserStoriesListReducer from "./common/UserStoriesListReducer.js";
+import UserSelfStoriesListReducer from "./common/UserSelfStoriesListReducer.js";
+import AddStoriesListReducer from "./common/AddStoriesListReducer.js";
+import UserViewStoriesListReducer from "./common/UserViewStoriesListReducer.js";
+import UserGetStoriesListReducer from "./common/UserGetStoriesListReducer.js";
 
 const rootReducer = combineReducers({
   LoginData: LoginReducer,
@@ -15,5 +19,9 @@ const rootReducer = combineReducers({
   UserProfileListData: UserProfileListReducer,
   UpdateUserProfileListData: UpdateUserProfileListReducer,
   UserStoriesListData: UserStoriesListReducer,
+  AddStoriesListData: AddStoriesListReducer,
+  UserViewStoriesListData: UserViewStoriesListReducer,
+  UserSelfStoriesListData: UserSelfStoriesListReducer,
+  UserGetStoriesListData: UserGetStoriesListReducer,
 });
 export default rootReducer;
