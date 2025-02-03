@@ -1,17 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { UserListActionHandler } from "../../Redux/Actions/common/UserList";
 import { ChatListActionHandler } from "../../Redux/Actions/common/ChatList";
 import { UserReceiverListActionHandler } from "../../Redux/Actions/common/UserReceiverList";
 import { getUserIdFromToken } from "../../service/Token";
 import UserChatList from "./UserChatList/UserChatList";
+import ViewProfile from "./UserChatList/ViewProfile/ViewProfile";
 import UserChatModel from "./UserChatModel/UserChatModel";
 
 function Dashboard() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [userListData, setUserListData] = useState([]);
   const [chatListData, setChatListData] = useState([]);
   const [receiverId, setReceiverId] = useState("");
   const [receiverData, setReceiverData] = useState();
@@ -21,34 +20,21 @@ function Dashboard() {
   const [userId, setUserId] = useState(null);
   const [storiesFlag, setStoriesFlag] = useState(false);
   const [fileList, setFileList] = useState([]);
-
-  const userlistdata = useSelector(
-    (state) => state?.UserListData?.user_list_data
-  );
+  const [viewProfile, setViewProfile] = useState(false);
 
   const chatlistdata = useSelector(
     (state) => state?.ChatListData?.chat_list_data
   );
-  
   const userreceiverlistdata = useSelector(
     (state) => state?.UserReceiverListData?.user_receiver_list_data
   );
-
-  useEffect(() => {
-    dispatch(UserListActionHandler());
-  }, [dispatch]);
-
-  useEffect(() => {
-    if (userlistdata) {
-      setUserListData(userlistdata.users);
-    }
-  }, [userlistdata]);
 
   const openChatModel = (receiverId) => {
     setReceiverId(receiverId);
     dispatch(ChatListActionHandler(receiverId));
     dispatch(UserReceiverListActionHandler(receiverId));
     setChatModel(true);
+    setMessage("");
   };
 
   useEffect(() => {
@@ -78,18 +64,26 @@ function Dashboard() {
 
         websocket.onmessage = (event) => {
           const data = JSON.parse(event.data);
-
-          setChatListData((prevChatListData) => [
-            ...prevChatListData,
-            {
-              id: data.id,
-              sender_id: data.senderId,
-              receiver_id: data.receiverId,
-              content: data.content,
-              images: data.images,
-              timestamp: data.timestamp,
-            },
-          ]);
+          if (data.deleteMessageId) {
+            // Remove the deleted message from the chat list
+            setChatListData((prevChatListData) =>
+              prevChatListData.filter(
+                (chat) => chat.id !== data.deleteMessageId
+              )
+            );
+          } else {
+            setChatListData((prevChatListData) => [
+              ...prevChatListData,
+              {
+                id: data.id,
+                sender_id: data.senderId,
+                receiver_id: data.receiverId,
+                content: data.content,
+                images: data.images,
+                timestamp: data.timestamp,
+              },
+            ]);
+          }
         };
 
         return () => websocket.close();
@@ -130,7 +124,11 @@ function Dashboard() {
           setMessage("");
           setFileList([]);
         } catch (error) {
-          console.error("Error uploading images:", error);
+          return {
+            status: "error",
+            message: "Error uploading images",
+            error: error,
+          };
         }
       }
     }
@@ -144,9 +142,14 @@ function Dashboard() {
     setFileList((prevList) => prevList.filter((item) => item.uid !== file.uid));
   };
 
+  const handleView = (viewId) => {
+    console.log("handleView", viewId);
+    setViewProfile(true);
+  };
+
   return (
     <div className="tyn-content tyn-content-full-height tyn-chat has-aside-base">
-      <UserChatList userListData={userListData} openChatModel={openChatModel} />
+      <UserChatList openChatModel={openChatModel} handleView={handleView} />
       {chatModel ? (
         <UserChatModel
           storiesFlag={storiesFlag}
@@ -159,7 +162,10 @@ function Dashboard() {
           fileList={fileList}
           handleChange={handleChange}
           handleRemove={handleRemove}
+          receiverId={receiverId}
         />
+      ) : viewProfile ? (
+        <ViewProfile />
       ) : (
         <div style={{ textAlign: "center", display: "block", flex: "auto" }}>
           <div

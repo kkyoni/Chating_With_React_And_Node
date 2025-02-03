@@ -1,99 +1,267 @@
 import React, { useState, useEffect } from "react";
+import { UserListActionHandler } from "../../../Redux/Actions/common/UserList";
+import { DeleteUserChatListActionHandler } from "../../../Redux/Actions/common/DeleteUserChatList";
+import { useDispatch, useSelector } from "react-redux";
+import moment from "moment";
+import { Badge, Dropdown } from "antd";
+import {
+  SyncOutlined,
+  UserOutlined,
+  UserDeleteOutlined,
+  MessageOutlined,
+} from "@ant-design/icons";
 
-function UserChatList({ userListData, openChatModel }) {
+function UserChatList({ openChatModel, handleView }) {
+  const dispatch = useDispatch();
+  const [userListData, setUserListData] = useState([]);
   const userListImage = "images/avatar/";
-  const [searchValue, setSearchValue] = useState(""); 
-  const [filteredUserList, setFilteredUserList] = useState(userListData);
+  const [searchValue, setSearchValue] = useState("");
+  const [refepage, setRefePage] = useState(false);
+  const [socket, setSocket] = useState(null);
+
+  const userlistdata = useSelector(
+    (state) => state?.UserListData?.user_list_data
+  );
+
+  const deleteuserchatlistdata = useSelector(
+    (state) => state?.DeleteUserChatListData?.delete_user_chat_data
+  );
+
+  // Sync Redux Data to Local State
+  useEffect(() => {
+    if (userlistdata) {
+      setUserListData(userlistdata.users);
+    }
+  }, [userlistdata]);
 
   useEffect(() => {
-    const filteredList = userListData.filter((user) =>
-      user.username.toLowerCase().includes(searchValue.toLowerCase())
-    );
-    setFilteredUserList(filteredList); 
-  }, [searchValue, userListData]); 
+    if (deleteuserchatlistdata) {
+      dispatch(UserListActionHandler());
+      // setUserListData(userlistdata.users);
+    }
+  }, [deleteuserchatlistdata]);
 
+  // Search Functionality
   const handleSearchChange = (e) => {
-    setSearchValue(e.target.value); 
+    const value = e.target.value.trim();
+    setSearchValue(value);
+    if (value.length > 0) {
+      const filteredList = userlistdata.users.filter((user) =>
+        user.username.toLowerCase().includes(value.toLowerCase())
+      );
+      setUserListData(filteredList);
+    } else {
+      setUserListData(userlistdata.users);
+    }
   };
 
+  // WebSocket Connection & Redux Dispatch
+  useEffect(() => {
+    dispatch(UserListActionHandler());
+
+    const newSocket = new WebSocket("ws://localhost:8080");
+    setSocket(newSocket);
+
+    newSocket.onmessage = (event) => {
+      const messageData = JSON.parse(event.data);
+      if (messageData) {
+        dispatch(UserListActionHandler());
+      }
+    };
+
+    return () => {
+      newSocket.close();
+    };
+  }, [dispatch]);
+
+  // Format Last Message Time
+  const formatTime = (time) => {
+    if (!time) return "N/A";
+    return moment(time).fromNow();
+  };
+
+  // Refresh User List
+  const handlerefepage = () => {
+    setRefePage(true);
+    dispatch(UserListActionHandler());
+    setTimeout(() => {
+      setRefePage(false);
+    }, 1000);
+  };
+
+  const handleDeleteUserChat = (receiverId) => {
+    console.log("receiverId", receiverId);
+    dispatch(DeleteUserChatListActionHandler(receiverId));
+  };
   return (
     <div className="tyn-aside tyn-aside-base">
+      {/* Header */}
       <div className="tyn-aside-head">
         <div className="tyn-aside-head-text">
           <h3 className="tyn-aside-title">Chats</h3>
         </div>
+        <div className="tyn-aside-head-tools">
+          <ul className="link-group gap gx-3">
+            <li className="dropdown">
+              {refepage ? (
+                <SyncOutlined spin />
+              ) : (
+                <SyncOutlined onClick={handlerefepage} />
+              )}
+            </li>
+          </ul>
+        </div>
       </div>
+
+      {/* Search Box */}
       <div className="tyn-aside-body" data-simplebar="init">
-        <div className="simplebar-wrapper" style={{ margin: "0px" }}>
-          <div className="simplebar-mask">
-            <div
-              className="simplebar-content-wrapper"
-              style={{ height: "100%", overflow: "hidden scroll" }}
-            >
-              <div className="simplebar-content" style={{ padding: "0px" }}>
-                <div className="tyn-aside-search">
-                  <div className="form-group tyn-pill">
-                    <div className="form-control-wrap">
-                      <div className="form-control-icon start">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="16"
-                          height="16"
-                          fill="currentColor"
-                          className="bi bi-search"
-                          viewBox="0 0 16 16"
-                        >
-                          <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"></path>
-                        </svg>
-                      </div>
-                      <input
-                        type="text"
-                        className="form-control form-control-solid"
-                        id="search"
-                        placeholder="Search contact / chat"
-                        value={searchValue} // Bind the state to the input
-                        onChange={handleSearchChange} // Handle change in input
-                      />
-                    </div>
-                  </div>
-                </div>
-                <div className="tab-content">
-                  <div
-                    className="tab-pane show active"
-                    id="all-chats"
-                    role="tabpanel"
-                  >
-                    <ul className="tyn-aside-list">
-                      {filteredUserList.length > 0 ? (
-                        filteredUserList.map((user, index) => (
-                          <li
-                            className="tyn-aside-item js-toggle-main"
-                            key={index}
-                            onClick={() => openChatModel(user.id)}
-                          >
-                            <div className="tyn-media-group">
-                              <div className="tyn-media tyn-size-lg">
-                                <img
-                                  src={`${userListImage}${user.avatar}`}
-                                  alt={user.username}
-                                />
-                              </div>
-                              <div className="tyn-media-col">
-                                <div className="tyn-media-row">
-                                  <h6 className="name">{user.username}</h6>
-                                </div>
-                              </div>
-                            </div>
-                          </li>
-                        ))
-                      ) : (
-                        <li className="no-results">No results found</li>
-                      )}
-                    </ul>
-                  </div>
-                </div>
+        <div className="tyn-aside-search">
+          <div className="form-group tyn-pill">
+            <div className="form-control-wrap">
+              <div className="form-control-icon start">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  fill="currentColor"
+                  className="bi bi-search"
+                  viewBox="0 0 16 16"
+                >
+                  <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"></path>
+                </svg>
               </div>
+              <input
+                type="text"
+                className="form-control form-control-solid"
+                id="search"
+                placeholder="Search contact / chat"
+                value={searchValue}
+                onChange={handleSearchChange}
+              />
             </div>
+          </div>
+        </div>
+
+        {/* Chat List */}
+        <div className="tab-content">
+          <div className="tab-pane show active" id="all-chats" role="tabpanel">
+            <ul className="tyn-aside-list">
+              {userListData.length > 0 ? (
+                userListData.map((user) => (
+                  <li
+                    className={`tyn-aside-item js-toggle-main ${
+                      user.last_status === "unread" ? "unread" : ""
+                    }`}
+                    key={user.user_id} // Using a unique key instead of index
+                  >
+                    <div className="tyn-media-group">
+                      <div className="tyn-media tyn-size-lg">
+                        <Badge count={user.unread_count}>
+                          <img
+                            src={`${userListImage}${user.avatar}`}
+                            alt={user.username}
+                          />
+                        </Badge>
+                      </div>
+                      <div className="tyn-media-col">
+                        <div onClick={() => openChatModel(user.user_id)}>
+                          <div className="tyn-media-row">
+                            <h6 className="name">{user.username}</h6>
+                          </div>
+                          {user.last_message && (
+                            <div className="tyn-media-row has-dot-sap">
+                              <p className="content">{user.last_message}</p>
+                              <span className="meta">
+                                {formatTime(user.last_message_time)}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                        <div className="tyn-media-option tyn-aside-item-option">
+                          <ul className="tyn-media-option-list">
+                            <li className="dropdown">
+                              <div className="btn btn-icon btn-white btn-pill dropdown-toggle">
+                                <Dropdown
+                                  menu={{
+                                    items: [
+                                      {
+                                        key: "1",
+                                        label: (
+                                          <span
+                                            onClick={() =>
+                                              handleView(user.user_id)
+                                            }
+                                          >
+                                            View Profile
+                                          </span>
+                                        ),
+                                        icon: <UserOutlined />,
+                                      },
+                                      { type: "divider" },
+                                      {
+                                        key: "2",
+                                        label: (
+                                          <span
+                                            onClick={() =>
+                                              openChatModel(user.user_id)
+                                            }
+                                          >
+                                            Send Message
+                                          </span>
+                                        ),
+                                        icon: <MessageOutlined />,
+                                      },
+                                      {
+                                        key: "3",
+                                        label: (
+                                          <span
+                                            onClick={() =>
+                                              handleDeleteUserChat(user.user_id)
+                                            }
+                                          >
+                                            Delete
+                                          </span>
+                                        ),
+                                        icon: <UserDeleteOutlined />,
+                                      },
+                                      { type: "divider" },
+                                      {
+                                        key: "4",
+                                        label: <span>Block</span>,
+                                        icon: <UserDeleteOutlined />,
+                                      },
+                                    ],
+                                  }}
+                                  trigger={["click"]}
+                                >
+                                  <a
+                                    onClick={(e) => e.preventDefault()}
+                                    className="dropdown-trigger"
+                                  >
+                                    <svg
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      width="16"
+                                      height="16"
+                                      fill="currentColor"
+                                      class="bi bi-three-dots"
+                                      viewBox="0 0 16 16"
+                                    >
+                                      <path d="M3 9.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3"></path>
+                                    </svg>
+                                  </a>
+                                </Dropdown>
+                              </div>
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                  </li>
+                ))
+              ) : (
+                <li className="no-results">No results found</li>
+              )}
+            </ul>
           </div>
         </div>
       </div>

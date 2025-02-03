@@ -18,7 +18,6 @@ export const LoginApi = async (data) => {
       return { status: "error", message: "Invalid email or password" };
     }
   } catch (err) {
-    console.error("Error in login:", err);
     return { status: "error", message: "Login failed", error: err };
   }
 };
@@ -35,7 +34,6 @@ const getToken = () => {
     }
     return parsedData.token;
   } catch (error) {
-    console.error("Error retrieving token:", error);
     return null;
   }
 };
@@ -61,7 +59,6 @@ export const UserListApi = async () => {
       return { status: "error", message: "Failed to retrieve user list" };
     }
   } catch (err) {
-    console.error("Error in User List:", err);
     return { status: "error", message: "Error fetching user list", error: err };
   }
 };
@@ -88,7 +85,6 @@ export const ChatListApi = async (receiverID) => {
       return { status: "error", message: "Failed to retrieve Chat list" };
     }
   } catch (err) {
-    console.error("Error in Chat List:", err);
     return { status: "error", message: "Error fetching Chat list", error: err };
   }
 };
@@ -118,7 +114,6 @@ export const UserReceiverListApi = async (receiverID) => {
       };
     }
   } catch (err) {
-    console.error("Error in User Receiver List:", err);
     return {
       status: "error",
       message: "Error fetching user receiver list",
@@ -151,7 +146,6 @@ export const UserProfileListApi = async () => {
       };
     }
   } catch (err) {
-    console.error("Error in User Profile List:", err);
     return {
       status: "error",
       message: "Error fetching user Profile list",
@@ -187,7 +181,6 @@ export const UpdateUserProfileListApi = async (data) => {
       return { status: "error", message: "Failed to update profile" };
     }
   } catch (err) {
-    console.error("Error updating profile:", err);
     return { status: "error", message: "Profile update failed", error: err };
   }
 };
@@ -217,7 +210,6 @@ export const UserStoriesListApi = async (receiverID) => {
       };
     }
   } catch (err) {
-    console.error("Error in User Receiver List:", err);
     return {
       status: "error",
       message: "Error fetching user receiver list",
@@ -252,7 +244,6 @@ export const UserViewStoriesListApi = async (id, receiverID) => {
       };
     }
   } catch (err) {
-    console.error("Error in User Receiver List:", err);
     return {
       status: "error",
       message: "Error fetching user receiver list",
@@ -288,7 +279,6 @@ export const AddStoriesListApi = async (formData) => {
       };
     }
   } catch (err) {
-    console.error("Error in AddStoriesListApi:", err);
     return {
       status: "error",
       message: "An error occurred while uploading",
@@ -321,7 +311,6 @@ export const UserSelfStoriesListApi = async () => {
       };
     }
   } catch (err) {
-    console.error("Error in User Receiver List:", err);
     return {
       status: "error",
       message: "Error fetching user receiver list",
@@ -354,7 +343,127 @@ export const UserGetStoriesListApi = async () => {
       };
     }
   } catch (err) {
-    console.error("Error in User Receiver List:", err);
+    return {
+      status: "error",
+      message: "Error fetching user receiver list",
+      error: err,
+    };
+  }
+};
+
+export const UpdateUserChangePasswordListApi = async (data) => {
+  try {
+    const token = getToken();
+    if (!token) {
+      throw new Error("No valid token found");
+    }
+
+    const response = await axios.put(
+      `${baseUrl}/update_user_change_password_list`,
+      { data },
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+
+    if (response && response.status === 200) {
+      return {
+        status: "success",
+        message: "Profile updated successfully",
+        data: response.data,
+      };
+    } else {
+      return { status: "error", message: "Failed to update profile" };
+    }
+  } catch (err) {
+    return { status: "error", message: "Profile update failed", error: err };
+  }
+};
+
+export const UserChatStatusListApi = async (receiverId) => {
+  try {
+    const token = getToken();
+    if (!token) {
+      throw new Error("No valid token found");
+    }
+
+    const response = await axios.put(
+      `${baseUrl}/update_user_chat_status_list`,
+      { receiverId },
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+
+    if (response && response.status === 200) {
+      return {
+        status: "success",
+        message: "Profile updated successfully",
+        data: response.data,
+      };
+    } else {
+      return { status: "error", message: "Failed to update profile" };
+    }
+  } catch (err) {
+    return { status: "error", message: "Profile update failed", error: err };
+  }
+};
+
+export const UserChatDeleteListApi = async (deleteId) => {
+  try {
+    const token = getToken();
+    if (!token) {
+      throw new Error("No valid token found");
+    }
+
+    const response = await axios.put(
+      `${baseUrl}/user_chat_delete_list`,
+      { deleteId },
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+
+    if (response && response.status === 200) {
+      return {
+        status: "success",
+        message: "Profile updated successfully",
+        data: response.data,
+      };
+    } else {
+      return { status: "error", message: "Failed to update profile" };
+    }
+  } catch (err) {
+    return { status: "error", message: "Profile update failed", error: err };
+  }
+};
+
+export const DeleteUserChatListApi = async (receiverId) => {
+  try {
+    const token = getToken();
+    if (!token) {
+      throw new Error("No valid token found");
+    }
+
+    const response = await axios.post(
+      `${baseUrl}/delete_user_chat_list`,
+      { receiverId },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    if (response && response.status === 200) {
+      return {
+        status: "success",
+        message: "User receiver list retrieved successfully",
+        data: response.data,
+      };
+    } else {
+      return {
+        status: "error",
+        message: "Failed to retrieve user receiver list",
+      };
+    }
+  } catch (err) {
     return {
       status: "error",
       message: "Error fetching user receiver list",

@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "2482b6a5-423c-4318-a355-9e1541ff0f88",
+		"_postman_id": "4e6a9abe-05a8-4198-a172-40ff634e677e",
 		"name": "Chat",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "22730249"
@@ -13,7 +13,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"email\" : \"harshil@gmail.com\",\n    \"password\" : \"data@1234\"\n}",
+					"raw": "{\n    \"email\" : \"jaymin@gmail.com\",\n    \"password\" : \"data@1234\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -354,6 +354,120 @@
 					"port": "3001",
 					"path": [
 						"add_stories_list"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete User Chat List",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImlhdCI6MTczODMyMTQ4N30.U8VLV7Suy2xQt4QR20ipf3O72Pb2lyQKq6qFCY2mtzE",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"receiverId\": 1\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3001/delete_user_chat_list",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"delete_user_chat_list"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update User Chat Status",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImlhdCI6MTczODE0MzM4MX0.-_OOOpTYezXUjWXq8OrloXkKjHK6DwYWpdk7ePuuCwM",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"receiverId\": 1\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3001/update_user_chat_status_list",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"update_user_chat_status_list"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "User Chat Delete List",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTczODE1MjEwN30.M7y6SOFMOAECnnqdazs1PtzAF-NvVUEb-MWrEfTVfKk",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"deleteId\": 1\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3001/user_chat_delete_list",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"user_chat_delete_list"
 					]
 				}
 			},

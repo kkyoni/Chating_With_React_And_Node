@@ -60,36 +60,36 @@ function AddStoriesSettings() {
   }, [addstorieslistdata]);
 
   return (
-    <div class="tyn-content tyn-stories tyn-stories-page has-aside-sticky">
-      <div class="tyn-aside tyn-aside-sticky">
-        <div class="tyn-aside-head">
-          <div class="tyn-aside-head-text">
-            <h3 class="tyn-aside-title tyn-title">Stories</h3>
-            <span class="tyn-subtext">{storiesCountData} stories</span>
+    <div className="tyn-content tyn-stories tyn-stories-page has-aside-sticky">
+      <div className="tyn-aside tyn-aside-sticky">
+        <div className="tyn-aside-head">
+          <div className="tyn-aside-head-text">
+            <h3 className="tyn-aside-title tyn-title">Stories</h3>
+            <span className="tyn-subtext">{storiesCountData} stories</span>
           </div>
         </div>
-        <div class="tyn-aside-body" data-simplebar="init">
-          <div class="simplebar-wrapper" style={{ margin: "0px" }}>
-            <div class="simplebar-height-auto-observer-wrapper">
-              <div class="simplebar-height-auto-observer"></div>
+        <div className="tyn-aside-body" data-simplebar="init">
+          <div className="simplebar-wrapper" style={{ margin: "0px" }}>
+            <div className="simplebar-height-auto-observer-wrapper">
+              <div className="simplebar-height-auto-observer"></div>
             </div>
-            <div class="simplebar-mask">
+            <div className="simplebar-mask">
               <div
-                class="simplebar-offset"
+                className="simplebar-offset"
                 style={{ right: "0px", bottom: "0px" }}
               >
                 <div
-                  class="simplebar-content-wrapper "
+                  className="simplebar-content-wrapper "
                   tabindex="0"
                   role="region"
                   aria-label="scrollable content"
                   style={{ height: "100%", overflow: "hidden" }}
                 >
-                  <div class="simplebar-content" style={{ padding: "0px" }}>
-                    <div class="tyn-aside-row pt-0">
-                      <div class="tyn-stories-thumb swiper swiper-slider swiper-initialized swiper-horizontal swiper-pointer-events swiper-free-mode swiper-grid swiper-grid-column swiper-css-mode swiper-thumbs">
+                  <div className="simplebar-content" style={{ padding: "0px" }}>
+                    <div className="tyn-aside-row pt-0">
+                      <div className="tyn-stories-thumb swiper swiper-slider swiper-initialized swiper-horizontal swiper-pointer-events swiper-free-mode swiper-grid swiper-grid-column swiper-css-mode swiper-thumbs">
                         <div
-                          class="swiper-wrapper"
+                          className="swiper-wrapper"
                           id="swiper-wrapper-d5737ae189ac2aa4"
                           aria-live="polite"
                           style={{ width: "331px" }}
@@ -97,7 +97,7 @@ function AddStoriesSettings() {
                           {userStoriesData.length > 0 ? (
                             userStoriesData.map((img) => (
                               <div
-                                class="swiper-slide swiper-slide-visible swiper-slide-active"
+                                className="swiper-slide swiper-slide-visible swiper-slide-active"
                                 role="group"
                                 aria-label="1 / 6"
                                 style={{ width: "165.5px" }}
@@ -106,13 +106,13 @@ function AddStoriesSettings() {
                                 <img
                                   src={img.images_stories}
                                   alt={img.name || "Story"}
-                                  class="tyn-image"
+                                  className="tyn-image"
                                 />
                               </div>
                             ))
                           ) : (
                             <div
-                              class="swiper-slide swiper-slide-visible swiper-slide-active"
+                              className="swiper-slide swiper-slide-visible swiper-slide-active"
                               role="group"
                               aria-label="1 / 6"
                               style={{ width: "165.5px" }}
@@ -123,7 +123,7 @@ function AddStoriesSettings() {
                         </div>
 
                         <span
-                          class="swiper-notification"
+                          className="swiper-notification"
                           aria-live="assertive"
                           aria-atomic="true"
                         ></span>

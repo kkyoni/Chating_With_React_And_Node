@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Dec 02, 2024 at 12:12 PM
+-- Generation Time: Jan 31, 2025 at 02:50 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.1.25
 
@@ -32,8 +32,10 @@ CREATE TABLE `messages` (
   `sender_id` int(11) NOT NULL,
   `receiver_id` int(11) NOT NULL,
   `content` text NOT NULL,
+  `status` enum('read','unread') NOT NULL DEFAULT 'unread',
   `timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
-  `images` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`images`))
+  `images` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`images`)),
+  `delete_user_id` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`delete_user_id`))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -73,9 +75,9 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `username`, `email`, `password`, `avatar`, `created_at`) VALUES
-(1, 'Jaymin Modi', 'jaymin@gmail.com', '$2a$10$nTZHmzbm.gM4YSvtt084HO0WII03dlEiN.g4IIPGoHcpxWsQBZj5.', '1.jpg', '2024-11-13 08:51:36'),
-(2, 'Veer Modi', 'veer@gmail.com', '$2a$10$9uwjszFhLTA.zz7O94RQeO60wQOAYIscwsxO7MuKnJb0KP6lDUdi6', '2.jpg', '2024-11-13 08:51:58'),
-(3, 'Harshil Patel', 'harshil@gmail.com', '$2a$10$bWVvwNXA9CfB0SUT.9Dxku7Fqv.oZ7HutsgvUlWa1AczYGTGtCvx.', '3.jpg', '2024-11-13 09:00:58');
+(1, 'Jaymin Modi', 'jaymin@gmail.com', '$2a$10$nTZHmzbm.gM4YSvtt084HO0WII03dlEiN.g4IIPGoHcpxWsQBZj5.', '1.jpg', '2024-11-13 03:21:36'),
+(2, 'Veer Modi', 'veer@gmail.com', '$2a$10$9uwjszFhLTA.zz7O94RQeO60wQOAYIscwsxO7MuKnJb0KP6lDUdi6', '2.jpg', '2024-11-13 03:21:58'),
+(3, 'Harshil Patel', 'harshil@gmail.com', '$2a$10$bWVvwNXA9CfB0SUT.9Dxku7Fqv.oZ7HutsgvUlWa1AczYGTGtCvx.', '3.jpg', '2024-11-13 03:30:58');
 
 --
 -- Indexes for dumped tables

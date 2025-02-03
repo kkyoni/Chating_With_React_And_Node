@@ -1,0 +1,18 @@
+Person Name : Jaymin Modi
+
+Project Name : LMS Project
+
+Description :
+ 1) add_shop.php                :- Update Functions Admin Side 
+ 2) update_shop.php             :- Update Functions Admin Side 
+ 3) delete_shop.php             :- Update Functions Admin Side shop Delete The product delete or category delete
+ 4) get_recommend_products.php  :- Update Functions Admin Side 
+ 5) add_recommend_products.php  :- Update Functions Admin Side 
+ 6) get_recommend_message.php   :- Update Functions Admin Side 
+ 7) add_recommend_message.php   :- Update Functions Admin Side 
+ 
+* SQL Command Line Query
+ALTER TABLE recommend_message DROP COLUMN date;
+ALTER TABLE recommend_products DROP COLUMN status;
+
+* Please PR Create Production

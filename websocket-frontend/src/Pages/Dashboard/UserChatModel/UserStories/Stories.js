@@ -73,14 +73,14 @@ function Stories() {
   };
 
   return (
-    <div class="tyn-content tyn-stories tyn-stories-page has-aside-sticky">
-      <div class="tyn-aside tyn-aside-sticky">
-        <div class="tyn-aside-head">
-          <div class="tyn-aside-head-text">
-            <h3 class="tyn-aside-title tyn-title">Stories User List</h3>
+    <div className="tyn-content tyn-stories tyn-stories-page has-aside-sticky">
+      <div className="tyn-aside tyn-aside-sticky">
+        <div className="tyn-aside-head">
+          <div className="tyn-aside-head-text">
+            <h3 className="tyn-aside-title tyn-title">Stories User List</h3>
           </div>
-          <div class="tyn-aside-head-tools">
-            <ul class="tyn-list-inline gap gap-3">
+          <div className="tyn-aside-head-tools">
+            <ul className="tyn-list-inline gap gap-3">
               <li>
                 <button
                   className="btn btn-icon btn-light btn-md btn-pill"
@@ -104,31 +104,31 @@ function Stories() {
             </ul>
           </div>
         </div>
-        <div class="tyn-aside-body" data-simplebar="init">
-          <div class="simplebar-wrapper" style={{ margin: "0px" }}>
-            <div class="simplebar-mask">
+        <div className="tyn-aside-body" data-simplebar="init">
+          <div className="simplebar-wrapper" style={{ margin: "0px" }}>
+            <div className="simplebar-mask">
               <div
-                class="simplebar-offset"
+                className="simplebar-offset"
                 style={{ right: "0px", bottom: "0px" }}
               >
                 <div
-                  class="simplebar-content-wrapper "
+                  className="simplebar-content-wrapper "
                   tabindex="0"
                   role="region"
                   aria-label="scrollable content"
                   style={{ height: "100%", overflow: "hidden" }}
                 >
-                  <div class="simplebar-content" style={{ padding: "0px" }}>
-                    <div class="tyn-aside-row pt-0">
-                      <div class="tyn-stories-thumb swiper swiper-slider swiper-initialized swiper-horizontal swiper-pointer-events swiper-free-mode swiper-grid swiper-grid-column swiper-css-mode swiper-thumbs">
+                  <div className="simplebar-content" style={{ padding: "0px" }}>
+                    <div className="tyn-aside-row pt-0">
+                      <div className="tyn-stories-thumb swiper swiper-slider swiper-initialized swiper-horizontal swiper-pointer-events swiper-free-mode swiper-grid swiper-grid-column swiper-css-mode swiper-thumbs">
                         <div
-                          class="swiper-wrapper"
+                          className="swiper-wrapper"
                           id="swiper-wrapper-d5737ae189ac2aa4"
                           aria-live="polite"
                           style={{ width: "331px" }}
                         >
                           <div
-                            class="swiper-slide swiper-slide-visible swiper-slide-active"
+                            className="swiper-slide swiper-slide-visible swiper-slide-active"
                             role="group"
                             aria-label="1 / 6"
                           >
@@ -191,9 +191,9 @@ function Stories() {
         </div>
       </div>
 
-      <div class="tyn-content-inner d-flex align-items-center">
-        <div class="tyn-stories-wrap">
-          <div class="tyn-stories-slider swiper swiper-slider swiper-fade swiper-initialized swiper-horizontal swiper-pointer-events swiper-watch-progress swiper-backface-hidden">
+      <div className="tyn-content-inner d-flex align-items-center">
+        <div className="tyn-stories-wrap">
+          <div className="tyn-stories-slider swiper swiper-slider swiper-fade swiper-initialized swiper-horizontal swiper-pointer-events swiper-watch-progress swiper-backface-hidden">
             <Carousel arrows infinite={false} afterChange={onCarouselChange}>
               {userStoriesViewListData && userStoriesViewListData.length > 0 ? (
                 userStoriesViewListData.map((user, index) => (

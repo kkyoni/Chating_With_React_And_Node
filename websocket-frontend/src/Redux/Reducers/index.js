@@ -10,6 +10,10 @@ import UserSelfStoriesListReducer from "./common/UserSelfStoriesListReducer.js";
 import AddStoriesListReducer from "./common/AddStoriesListReducer.js";
 import UserViewStoriesListReducer from "./common/UserViewStoriesListReducer.js";
 import UserGetStoriesListReducer from "./common/UserGetStoriesListReducer.js";
+import UserChangePasswordListReducer from "./common/UserChangePasswordListReducer.js";
+import UserChatStatusListReducer from "./common/UserChatStatusListReducer.js";
+import UserChatDeleteListReducer from "./common/UserChatDeleteListReducer.js";
+import DeleteUserChatListReducer from "./common/DeleteUserChatListReducer.js";
 
 const rootReducer = combineReducers({
   LoginData: LoginReducer,
@@ -23,5 +27,9 @@ const rootReducer = combineReducers({
   UserViewStoriesListData: UserViewStoriesListReducer,
   UserSelfStoriesListData: UserSelfStoriesListReducer,
   UserGetStoriesListData: UserGetStoriesListReducer,
+  UserChangePasswordListData: UserChangePasswordListReducer,
+  UserChatStatusListData: UserChatStatusListReducer,
+  UserChatDeleteListData: UserChatDeleteListReducer,
+  DeleteUserChatListData: DeleteUserChatListReducer,
 });
 export default rootReducer;
