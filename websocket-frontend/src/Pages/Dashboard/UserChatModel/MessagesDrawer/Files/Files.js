@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 const Files = ({ chatListData }) => {
   return (
@@ -26,7 +27,7 @@ const Files = ({ chatListData }) => {
                       return (
                         !isFile && (
                           <div className="tyn-reply-file">
-                            <a href={media.url} className="tyn-file" download>
+                            <Link href={media.url} className="tyn-file" download>
                               <div className="tyn-media-group">
                                 <div className="tyn-media tyn-size-lg text-bg-light">
                                   📄
@@ -37,7 +38,7 @@ const Files = ({ chatListData }) => {
                                   </h6>
                                 </div>
                               </div>
-                            </a>
+                            </Link>
                           </div>
                         )
                       );

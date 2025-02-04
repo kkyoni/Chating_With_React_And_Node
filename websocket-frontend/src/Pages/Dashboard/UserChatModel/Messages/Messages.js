@@ -3,11 +3,9 @@ import CarouselModel from "./CarouselModel/CarouselModel";
 import { UserChatStatusActionHandler } from "../../../../Redux/Actions/common/UserChatStatusList";
 import { useDispatch, useSelector } from "react-redux";
 import { UserListActionHandler } from "../../../../Redux/Actions/common/UserList";
-import { UserChatDeleteListActionHandler } from "../../../../Redux/Actions/common/UserChatDeleteList";
-import { Dropdown, Space } from "antd";
-import Swal from "sweetalert2";
+// import { UserChatDeleteListActionHandler } from "../../../../Redux/Actions/common/UserChatDeleteList";
+// import Swal from "sweetalert2";
 import { ChatListActionHandler } from "../../../../Redux/Actions/common/ChatList";
-import { Link } from "react-router-dom";
 
 function Messages({ chatListData, userId, receiverId }) {
   const dispatch = useDispatch();
@@ -92,29 +90,29 @@ function Messages({ chatListData, userId, receiverId }) {
     scrollToLastMessage();
   }, [receiverId, scrollToLastMessage]);
 
-  const handleEdit = (editId) => {
-    console.log("Edit clicked", editId);
-  };
+  // const handleEdit = (editId) => {
+  //   console.log("Edit clicked", editId);
+  // };
 
-  const handleDelete = (deleteId) => {
-    Swal.fire({
-      title: "Are you sure?",
-      text: "You won't be able to revert this!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!",
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        try {
-          dispatch(UserChatDeleteListActionHandler(deleteId));
-        } catch (error) {
-          Swal.fire("Error!", "Failed to delete. Please try again.", "error");
-        }
-      }
-    });
-  };
+  // const handleDelete = (deleteId) => {
+  //   Swal.fire({
+  //     title: "Are you sure?",
+  //     text: "You won't be able to revert this!",
+  //     icon: "warning",
+  //     showCancelButton: true,
+  //     confirmButtonColor: "#3085d6",
+  //     cancelButtonColor: "#d33",
+  //     confirmButtonText: "Yes, delete it!",
+  //   }).then(async (result) => {
+  //     if (result.isConfirmed) {
+  //       try {
+  //         dispatch(UserChatDeleteListActionHandler(deleteId));
+  //       } catch (error) {
+  //         Swal.fire("Error!", "Failed to delete. Please try again.", "error");
+  //       }
+  //     }
+  //   });
+  // };
 
   return (
     <div

@@ -87,7 +87,7 @@ app.get("/user_list", async (req, res) => {
 
     const decoded = jwt.verify(token, SECRET_KEY);
     const userId = decoded.userId;
-    
+
     const query = `
   SELECT 
     users.id AS user_id,
@@ -224,23 +224,37 @@ app.post("/add_stories_list", upload.any(), async (req, res) => {
     const decoded = jwt.verify(token, SECRET_KEY);
     const userId = decoded.userId;
 
-    // Prepare file data for batch insert
-    const imagePaths = req.files.map((file) => [
+    const captions = req.body.captions || []; // Captions from frontend
+
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ error: "No images uploaded" });
+    }
+
+    // Validate if captions array length matches files array length
+    if (captions.length !== req.files.length) {
+      return res
+        .status(400)
+        .json({ error: "Captions count mismatch with images" });
+    }
+
+    // Prepare data for batch insert
+    const imageData = req.files.map((file, index) => [
       userId,
       `/uploads/${file.filename}`,
+      captions[index] || "Untitled Story", // Use a default title if empty
       new Date(),
       new Date(),
     ]);
 
     const insertSql =
-      "INSERT INTO stories (user_id, images_stories, created_at, updated_at) VALUES ?";
+      "INSERT INTO stories (user_id, images_stories, title, created_at, updated_at) VALUES ?";
 
-    db.query(insertSql, [imagePaths], (err) => {
+    db.query(insertSql, [imageData], (err) => {
       if (err) {
         return res.status(500).json({ error: "Failed to upload images" });
       }
 
-      // Prepare to fetch the updated stories list and total count
+      // Fetch updated stories and count
       const baseUrl = `http://localhost:3001`;
 
       const fetchSql = `
@@ -257,14 +271,12 @@ app.post("/add_stories_list", upload.any(), async (req, res) => {
       `;
 
       const countSql = `
-        SELECT 
-          COUNT(*) AS total_count 
+        SELECT COUNT(*) AS total_count 
         FROM stories 
         WHERE user_id = ? 
           AND created_at BETWEEN DATE_SUB(NOW(), INTERVAL 24 HOUR) AND NOW()
       `;
 
-      // Fetch stories and count in parallel
       db.query(fetchSql, [baseUrl, userId], (err, stories) => {
         if (err) {
           return res.status(500).json({
@@ -295,6 +307,88 @@ app.post("/add_stories_list", upload.any(), async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
+
+// app.post("/add_stories_list", upload.any(), async (req, res) => {
+//   try {
+//     const token = req.headers.authorization?.split(" ")[1];
+//     if (!token) {
+//       return res.status(403).json({ error: "No token provided" });
+//     }
+
+//     const decoded = jwt.verify(token, SECRET_KEY);
+//     const userId = decoded.userId;
+
+//     // Prepare file data for batch insert
+//     const imagePaths = req.files.map((file) => [
+//       userId,
+//       `/uploads/${file.filename}`,
+//       new Date(),
+//       new Date(),
+//     ]);
+
+//     const insertSql =
+//       "INSERT INTO stories (user_id, images_stories, created_at, updated_at) VALUES ?";
+
+//     db.query(insertSql, [imagePaths], (err) => {
+//       if (err) {
+//         return res.status(500).json({ error: "Failed to upload images" });
+//       }
+
+//       // Prepare to fetch the updated stories list and total count
+//       const baseUrl = `http://localhost:3001`;
+
+//       const fetchSql = `
+//         SELECT
+//           id,
+//           user_id,
+//           CONCAT(?, images_stories) AS images_stories,
+//           viewers,
+//           title,
+//           created_at
+//         FROM stories
+//         WHERE user_id = ?
+//           AND created_at BETWEEN DATE_SUB(NOW(), INTERVAL 24 HOUR) AND NOW()
+//       `;
+
+//       const countSql = `
+//         SELECT
+//           COUNT(*) AS total_count
+//         FROM stories
+//         WHERE user_id = ?
+//           AND created_at BETWEEN DATE_SUB(NOW(), INTERVAL 24 HOUR) AND NOW()
+//       `;
+
+//       // Fetch stories and count in parallel
+//       db.query(fetchSql, [baseUrl, userId], (err, stories) => {
+//         if (err) {
+//           return res.status(500).json({
+//             error: "Failed to retrieve updated stories",
+//             details: err.message,
+//           });
+//         }
+
+//         db.query(countSql, [userId], (err, countResult) => {
+//           if (err) {
+//             return res.status(500).json({
+//               error: "Failed to retrieve story count",
+//               details: err.message,
+//             });
+//           }
+
+//           const totalCount = countResult[0]?.total_count || 0;
+
+//           res.status(200).json({
+//             message: "Stories uploaded successfully",
+//             total_count: totalCount,
+//             stories: stories,
+//           });
+//         });
+//       });
+//     });
+//   } catch (error) {
+//     res.status(500).json({ error: "Internal Server Error" });
+//   }
+// });
 
 app.get("/user_receiver_list", async (req, res) => {
   try {

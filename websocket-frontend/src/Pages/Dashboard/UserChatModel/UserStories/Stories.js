@@ -221,9 +221,9 @@ function Stories() {
                         <h5 className="tyn-stories-title text-white">
                           {user.title || "Untitled Story"}
                         </h5>
-                        <p className="text-white">
+                        {/* <p className="text-white">
                           viewers: {user.viewers || ""}
-                        </p>
+                        </p> */}
                       </div>
                     </div>
                   </div>

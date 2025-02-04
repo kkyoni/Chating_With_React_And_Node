@@ -8,7 +8,7 @@ function NotFound() {
           <div className="tyn-section">
             <div className="container">
               <div className="tyn-text-block text-center pb-4 pb-lg-5">
-                <a className="tyn-logo" href="index.html">
+                <Link className="tyn-logo" href="index.html">
                   <svg
                     viewBox="0 0 43 40"
                     fill="none"
@@ -23,7 +23,7 @@ function NotFound() {
                       fill="#2563EB"
                     ></path>
                   </svg>
-                </a>
+                </Link>
                 <h1 className="mt-3">404 - Page not found</h1>
                 <div className="mt-4">
                   <Link className="btn btn-primary btn-rg btn-pill" to={"/"}>
