@@ -3,6 +3,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { ChatListActionHandler } from "../../Redux/Actions/common/ChatList";
 import { UserReceiverListActionHandler } from "../../Redux/Actions/common/UserReceiverList";
+import { ViewProfileListActionHandler } from "../../Redux/Actions/common/ViewProfileList";
+import { BlockUserMessageListActionHandler } from "../../Redux/Actions/common/BlockUserMessageList";
 import { getUserIdFromToken } from "../../service/Token";
 import UserChatList from "./UserChatList/UserChatList";
 import ViewProfile from "./UserChatList/ViewProfile/ViewProfile";
@@ -14,28 +16,43 @@ function Dashboard() {
   const [chatListData, setChatListData] = useState([]);
   const [receiverId, setReceiverId] = useState("");
   const [receiverData, setReceiverData] = useState();
-  const [message, setMessage] = useState("");
+  const [messages, setMessage] = useState("");
   const [chatModel, setChatModel] = useState(false);
   const [ws, setWs] = useState(null);
   const [userId, setUserId] = useState(null);
   const [storiesFlag, setStoriesFlag] = useState(false);
   const [fileList, setFileList] = useState([]);
+  const [viewProfileList, setViewProfileList] = useState({});
   const [viewProfile, setViewProfile] = useState(false);
 
   const chatlistdata = useSelector(
     (state) => state?.ChatListData?.chat_list_data
   );
+  const viewprofilelistdata = useSelector(
+    (state) => state?.ViewProfileListData?.view_profile_list_data
+  );
+
   const userreceiverlistdata = useSelector(
     (state) => state?.UserReceiverListData?.user_receiver_list_data
   );
 
+  const blockusermessagedata = useSelector(
+    (state) => state?.BlockUserMessageListData?.block_user_message_data
+  );
+
   const openChatModel = (receiverId) => {
+    dispatch(BlockUserMessageListActionHandler(receiverId));
     setReceiverId(receiverId);
-    dispatch(ChatListActionHandler(receiverId));
-    dispatch(UserReceiverListActionHandler(receiverId));
-    setChatModel(true);
-    setMessage("");
   };
+
+  useEffect(() => {
+    if (blockusermessagedata?.data === true) {
+      dispatch(ChatListActionHandler(receiverId));
+      dispatch(UserReceiverListActionHandler(receiverId));
+      setChatModel(true);
+      setMessage("");
+    }
+  }, [blockusermessagedata, receiverId, dispatch]);
 
   useEffect(() => {
     if (chatlistdata) {
@@ -113,7 +130,7 @@ function Dashboard() {
           const messageData = {
             token,
             receiver_id: receiverId,
-            content: message,
+            content: messages,
             fileList: urls.map((url) => ({
               url,
             })),
@@ -143,9 +160,14 @@ function Dashboard() {
   };
 
   const handleView = (viewId) => {
-    console.log("handleView", viewId);
-    setViewProfile(true);
+    dispatch(ViewProfileListActionHandler(viewId));
   };
+  useEffect(() => {
+    if (viewprofilelistdata.user) {
+      setViewProfileList(viewprofilelistdata.user);
+      setViewProfile(true);
+    }
+  }, [viewprofilelistdata]);
 
   return (
     <div className="tyn-content tyn-content-full-height tyn-chat has-aside-base">
@@ -156,7 +178,7 @@ function Dashboard() {
           receiverData={receiverData}
           chatListData={chatListData}
           userId={userId}
-          message={message}
+          messages={messages}
           setMessage={setMessage}
           handleSendMessage={handleSendMessage}
           fileList={fileList}
@@ -165,7 +187,7 @@ function Dashboard() {
           receiverId={receiverId}
         />
       ) : viewProfile ? (
-        <ViewProfile />
+        <ViewProfile viewProfileList={viewProfileList} />
       ) : (
         <div style={{ textAlign: "center", display: "block", flex: "auto" }}>
           <div

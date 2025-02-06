@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { UserListActionHandler } from "../../../Redux/Actions/common/UserList";
 import { DeleteUserChatListActionHandler } from "../../../Redux/Actions/common/DeleteUserChatList";
+import { BlockUserChatListActionHandler } from "../../../Redux/Actions/common/BlockUserChatList";
 import { useDispatch, useSelector } from "react-redux";
 import moment from "moment";
 import { Badge, Dropdown } from "antd";
@@ -10,6 +11,8 @@ import {
   UserDeleteOutlined,
   MessageOutlined,
 } from "@ant-design/icons";
+import Swal from "sweetalert2";
+import { Link } from "react-router-dom";
 
 function UserChatList({ openChatModel, handleView }) {
   const dispatch = useDispatch();
@@ -17,7 +20,7 @@ function UserChatList({ openChatModel, handleView }) {
   const userListImage = "images/avatar/";
   const [searchValue, setSearchValue] = useState("");
   const [refepage, setRefePage] = useState(false);
-  const [socket, setSocket] = useState(null);
+  // const [socket, setSocket] = useState(null);
 
   const userlistdata = useSelector(
     (state) => state?.UserListData?.user_list_data
@@ -27,7 +30,10 @@ function UserChatList({ openChatModel, handleView }) {
     (state) => state?.DeleteUserChatListData?.delete_user_chat_data
   );
 
-  // Sync Redux Data to Local State
+  const blockuserchatlistdata = useSelector(
+    (state) => state?.BlockUserChatListData?.block_user_chat_data
+  );
+
   useEffect(() => {
     if (userlistdata) {
       setUserListData(userlistdata.users);
@@ -37,11 +43,15 @@ function UserChatList({ openChatModel, handleView }) {
   useEffect(() => {
     if (deleteuserchatlistdata) {
       dispatch(UserListActionHandler());
-      // setUserListData(userlistdata.users);
     }
-  }, [deleteuserchatlistdata]);
+  }, [deleteuserchatlistdata, dispatch]);
 
-  // Search Functionality
+  useEffect(() => {
+    if (blockuserchatlistdata) {
+      dispatch(UserListActionHandler());
+    }
+  }, [blockuserchatlistdata, dispatch]);
+
   const handleSearchChange = (e) => {
     const value = e.target.value.trim();
     setSearchValue(value);
@@ -55,32 +65,26 @@ function UserChatList({ openChatModel, handleView }) {
     }
   };
 
-  // WebSocket Connection & Redux Dispatch
   useEffect(() => {
     dispatch(UserListActionHandler());
-
     const newSocket = new WebSocket("ws://localhost:8080");
-    setSocket(newSocket);
-
+    // setSocket(newSocket);
     newSocket.onmessage = (event) => {
       const messageData = JSON.parse(event.data);
       if (messageData) {
         dispatch(UserListActionHandler());
       }
     };
-
     return () => {
       newSocket.close();
     };
   }, [dispatch]);
 
-  // Format Last Message Time
   const formatTime = (time) => {
     if (!time) return "N/A";
     return moment(time).fromNow();
   };
 
-  // Refresh User List
   const handlerefepage = () => {
     setRefePage(true);
     dispatch(UserListActionHandler());
@@ -90,12 +94,41 @@ function UserChatList({ openChatModel, handleView }) {
   };
 
   const handleDeleteUserChat = (receiverId) => {
-    console.log("receiverId", receiverId);
-    dispatch(DeleteUserChatListActionHandler(receiverId));
+    Swal.fire({
+      title: "Are you sure?",
+      text: "This action will delete the chat permanently!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        dispatch(DeleteUserChatListActionHandler(receiverId));
+        Swal.fire("Deleted!", "The chat has been deleted.", "success");
+      }
+    });
   };
+
+  const handleBlockUserChat = (receiverId) => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "This action will Block the chat permanently!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, Block it!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        dispatch(BlockUserChatListActionHandler(receiverId));
+        Swal.fire("Block!", "The User has been Block.", "success");
+      }
+    });
+  };
+
   return (
     <div className="tyn-aside tyn-aside-base">
-      {/* Header */}
       <div className="tyn-aside-head">
         <div className="tyn-aside-head-text">
           <h3 className="tyn-aside-title">Chats</h3>
@@ -113,7 +146,6 @@ function UserChatList({ openChatModel, handleView }) {
         </div>
       </div>
 
-      {/* Search Box */}
       <div className="tyn-aside-body" data-simplebar="init">
         <div className="tyn-aside-search">
           <div className="form-group tyn-pill">
@@ -142,7 +174,6 @@ function UserChatList({ openChatModel, handleView }) {
           </div>
         </div>
 
-        {/* Chat List */}
         <div className="tab-content">
           <div className="tab-pane show active" id="all-chats" role="tabpanel">
             <ul className="tyn-aside-list">
@@ -152,7 +183,7 @@ function UserChatList({ openChatModel, handleView }) {
                     className={`tyn-aside-item js-toggle-main ${
                       user.last_status === "unread" ? "unread" : ""
                     }`}
-                    key={user.user_id} // Using a unique key instead of index
+                    key={user.user_id}
                   >
                     <div className="tyn-media-group">
                       <div className="tyn-media tyn-size-lg">
@@ -227,14 +258,22 @@ function UserChatList({ openChatModel, handleView }) {
                                       { type: "divider" },
                                       {
                                         key: "4",
-                                        label: <span>Block</span>,
+                                        label: (
+                                          <span
+                                            onClick={() =>
+                                              handleBlockUserChat(user.user_id)
+                                            }
+                                          >
+                                            Block
+                                          </span>
+                                        ),
                                         icon: <UserDeleteOutlined />,
                                       },
                                     ],
                                   }}
                                   trigger={["click"]}
                                 >
-                                  <a
+                                  <Link
                                     onClick={(e) => e.preventDefault()}
                                     className="dropdown-trigger"
                                   >
@@ -248,7 +287,7 @@ function UserChatList({ openChatModel, handleView }) {
                                     >
                                       <path d="M3 9.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3"></path>
                                     </svg>
-                                  </a>
+                                  </Link>
                                 </Dropdown>
                               </div>
                             </li>

@@ -9,7 +9,7 @@ function UserChatModel({
   receiverData,
   chatListData,
   userId,
-  message,
+  messages,
   setMessage,
   handleSendMessage,
   fileList,
@@ -82,14 +82,21 @@ function UserChatModel({
         receiverId={receiverId}
       />
       <MessagesText
-        message={message}
+        messages={messages}
         setMessage={setMessage}
         handleSendMessage={handleSendMessage}
         fileList={fileList}
         handleChange={handleChange}
         handleRemove={handleRemove}
       />
-      {open ? <MessagesDrawer chatListData={chatListData} onClose={onClose} open={open} /> : null}
+      {open ? (
+        <MessagesDrawer
+          chatListData={chatListData}
+          onClose={onClose}
+          open={open}
+          receiverId={receiverId}
+        />
+      ) : null}
     </div>
   );
 }

@@ -25,7 +25,6 @@ function AddStoriesSettings() {
   const handleChange = ({ fileList: newFileList }) => {
     setFileList(newFileList);
 
-    // Initialize text fields for new files (if not already set)
     const updatedTextValues = { ...textValues };
     newFileList.forEach((file) => {
       if (!updatedTextValues[file.uid]) {
@@ -33,7 +32,6 @@ function AddStoriesSettings() {
       }
     });
 
-    // Remove captions for removed files
     Object.keys(updatedTextValues).forEach((uid) => {
       if (!newFileList.some((file) => file.uid === uid)) {
         delete updatedTextValues[uid];
@@ -123,7 +121,7 @@ function AddStoriesSettings() {
               >
                 <div
                   className="simplebar-content-wrapper "
-                  tabindex="0"
+                  tabIndex="0"
                   role="region"
                   aria-label="scrollable content"
                   style={{ height: "100%", overflow: "hidden" }}

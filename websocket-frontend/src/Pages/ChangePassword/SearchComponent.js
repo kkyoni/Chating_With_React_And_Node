@@ -1,18 +1,8 @@
 import React, { useState } from "react";
-import {
-  TextField,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  Box,
-  IconButton,
-} from "@mui/material";
-import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
-import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
+import { Input, Table, Button, Row, Col, Typography } from "antd";
+import { UpOutlined, DownOutlined } from "@ant-design/icons";
+
+const { Text } = Typography;
 
 const users = [
   { id: 1, name: "Fidel Carter" },
@@ -49,95 +39,82 @@ const SearchComponent = () => {
 
   return (
     <div style={{ width: "400px", margin: "150px auto" }}>
-      <Box style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <Row style={{ marginBottom: "10px" }} justify="space-between" align="middle">
         {/* Search Box */}
-        <TextField
-          fullWidth
-          label="Search to Highlight"
-          variant="outlined"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          style={{ marginBottom: "10px" }}
-        />
+        <Col span={16}>
+          <Input
+            placeholder="Search to Highlight"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </Col>
 
         {/* Up and Down Buttons */}
-        <Box>
-          <IconButton
+        <Col>
+          <Button
+            icon={<UpOutlined />}
             onClick={handleUpClick}
             disabled={highlightedCount === 0}
-            style={{
-              backgroundColor: "#f0f0f0",
-              marginBottom: "5px",
-            }}
-          >
-            <ArrowUpwardIcon />
-          </IconButton>
-          <IconButton
+            style={{ marginBottom: "5px" }}
+          />
+          <Button
+            icon={<DownOutlined />}
             onClick={handleDownClick}
             disabled={highlightedCount === 0}
-            style={{
-              backgroundColor: "#f0f0f0",
-            }}
-          >
-            <ArrowDownwardIcon />
-          </IconButton>
-        </Box>
-      </Box>
+          />
+        </Col>
+      </Row>
 
       {/* Display the count of highlighted matches */}
-      <Box style={{ marginBottom: "10px", fontSize: "16px" }}>
-        <strong>Highlighted Matches: </strong>{highlightedCount}
-      </Box>
+      <Text strong>Highlighted Matches: {highlightedCount}</Text>
 
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow style={{ backgroundColor: "#ddd" }}>
-              <TableCell><strong>ID</strong></TableCell>
-              <TableCell><strong>Name</strong></TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {users.map((user, index) => {
-              const startIndex = user.name.toLowerCase().indexOf(searchTerm.toLowerCase());
-              const endIndex = startIndex + searchTerm.length;
+      <Table
+        dataSource={users}
+        rowKey="id"
+        pagination={false}
+        style={{ marginTop: "20px" }}
+      >
+        <Table.Column title="ID" dataIndex="id" key="id" />
+        <Table.Column
+          title="Name"
+          dataIndex="name"
+          key="name"
+          render={(text, record, index) => {
+            const startIndex = text.toLowerCase().indexOf(searchTerm.toLowerCase());
+            const endIndex = startIndex + searchTerm.length;
 
-              // Highlight only if search term is found
-              const highlightedText =
-                startIndex !== -1 ? (
-                  <>
-                    {user.name.substring(0, startIndex)}
-                    <span style={{ backgroundColor: "yellow" }}>
-                      {user.name.substring(startIndex, endIndex)}
-                    </span>
-                    {user.name.substring(endIndex)}
-                  </>
-                ) : (
-                  user.name
-                );
-
-              return (
-                <TableRow key={user.id}>
-                  <TableCell>{user.id}</TableCell>
-                  <TableCell
-                    onMouseEnter={() =>
-                      searchTerm && startIndex !== -1 ? setHoveredCell(user.id) : setHoveredCell(null)
-                    }
-                    onMouseLeave={() => setHoveredCell(null)}
-                    style={{
-                      backgroundColor: hoveredCell === user.id ? "#f0f0f0" : "white",
-                      transition: "background-color 0.2s",
-                      border: selectedIndex === index ? "2px solid blue" : "none",
-                    }}
-                  >
-                    {highlightedText}
-                  </TableCell>
-                </TableRow>
+            // Highlight only if search term is found
+            const highlightedText =
+              startIndex !== -1 ? (
+                <>
+                  {text.substring(0, startIndex)}
+                  <span style={{ backgroundColor: "yellow" }}>
+                    {text.substring(startIndex, endIndex)}
+                  </span>
+                  {text.substring(endIndex)}
+                </>
+              ) : (
+                text
               );
-            })}
-          </TableBody>
-        </Table>
-      </TableContainer>
+
+            return (
+              <div
+                onMouseEnter={() =>
+                  searchTerm && startIndex !== -1 ? setHoveredCell(record.id) : setHoveredCell(null)
+                }
+                onMouseLeave={() => setHoveredCell(null)}
+                style={{
+                  backgroundColor: hoveredCell === record.id ? "#f0f0f0" : "white",
+                  transition: "background-color 0.2s",
+                  border: selectedIndex === index ? "2px solid blue" : "none",
+                }}
+              >
+                {highlightedText}
+              </div>
+            );
+          }}
+        />
+      </Table>
     </div>
   );
 };

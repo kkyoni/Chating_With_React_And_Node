@@ -215,7 +215,7 @@ function Header() {
                                         />
                                         <label
                                           className="form-check-label small"
-                                          for="dark"
+                                          htmlFor="dark"
                                         >
                                           {" "}
                                           On{" "}
@@ -235,7 +235,7 @@ function Header() {
                                         />
                                         <label
                                           className="form-check-label small"
-                                          for="light"
+                                          htmlFor="light"
                                         >
                                           {" "}
                                           Off{" "}

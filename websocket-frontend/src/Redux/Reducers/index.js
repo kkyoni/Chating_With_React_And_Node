@@ -14,6 +14,9 @@ import UserChangePasswordListReducer from "./common/UserChangePasswordListReduce
 import UserChatStatusListReducer from "./common/UserChatStatusListReducer.js";
 import UserChatDeleteListReducer from "./common/UserChatDeleteListReducer.js";
 import DeleteUserChatListReducer from "./common/DeleteUserChatListReducer.js";
+import BlockUserChatListReducer from "./common/BlockUserChatListReducer.js";
+import BlockUserMessageListReducer from "./common/BlockUserMessageListReducer.js";
+import ViewProfileListReducer from "./common/ViewProfileListReducer.js";
 
 const rootReducer = combineReducers({
   LoginData: LoginReducer,
@@ -31,5 +34,8 @@ const rootReducer = combineReducers({
   UserChatStatusListData: UserChatStatusListReducer,
   UserChatDeleteListData: UserChatDeleteListReducer,
   DeleteUserChatListData: DeleteUserChatListReducer,
+  BlockUserChatListData: BlockUserChatListReducer,
+  BlockUserMessageListData: BlockUserMessageListReducer,
+  ViewProfileListData: ViewProfileListReducer,
 });
 export default rootReducer;

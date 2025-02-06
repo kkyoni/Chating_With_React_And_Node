@@ -3,16 +3,22 @@ import { Drawer, Tabs } from "antd";
 import Images from "./Images/Images";
 import Videos from "./Videos/Videos";
 import Files from "./Files/Files";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import coverImage from "../../../../images/cover/2.jpg";
+import { ViewProfileListActionHandler } from "../../../../Redux/Actions/common/ViewProfileList";
 
-function MessagesDrawer({ onClose, open, chatListData }) {
+function MessagesDrawer({ onClose, open, chatListData, receiverId }) {
+  const dispatch = useDispatch();
   const userListImage = "images/avatar/";
   const [userProfileData, setUserProfileData] = useState(null);
 
   const userprofilelistdata = useSelector(
-    (state) => state?.UserProfileListData?.user_profile_list_data
+    (state) => state?.ViewProfileListData?.view_profile_list_data
   );
+
+  useEffect(() => {
+    dispatch(ViewProfileListActionHandler(receiverId));
+  }, [receiverId, dispatch]);
 
   useEffect(() => {
     if (userprofilelistdata) {
@@ -24,24 +30,24 @@ function MessagesDrawer({ onClose, open, chatListData }) {
     {
       key: "1",
       label: "Images",
-      children: <Images chatListData={chatListData}/>,
+      children: <Images chatListData={chatListData} />,
     },
     {
       key: "2",
       label: "Videos",
-      children: <Videos chatListData={chatListData}/>,
+      children: <Videos chatListData={chatListData} />,
     },
     {
       key: "3",
       label: "Files",
-      children: <Files chatListData={chatListData}/>,
+      children: <Files chatListData={chatListData} />,
     },
   ];
 
   return (
     <Drawer onClose={onClose} open={open}>
       <div className="tyn-chat-cover">
-        <img src={coverImage} alt="coverImage"/>
+        <img src={coverImage} alt="coverImage" />
       </div>
 
       <div className="tyn-media-group tyn-media-vr tyn-media-center mt-n4">

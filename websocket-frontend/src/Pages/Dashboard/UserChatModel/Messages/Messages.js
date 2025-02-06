@@ -84,7 +84,7 @@ function Messages({ chatListData, userId, receiverId }) {
       dispatch(UserListActionHandler());
       dispatch(ChatListActionHandler(receiverId));
     }
-  }, [userchatdeletelistdata, dispatch]);
+  }, [userchatdeletelistdata, receiverId, dispatch]);
 
   useEffect(() => {
     scrollToLastMessage();

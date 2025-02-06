@@ -15,22 +15,6 @@ const SECRET_KEY = "your_secret_key";
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-// const upload = multer({
-//   storage: multer.diskStorage({
-//     destination: (req, file, cb) => {
-//       cb(null, "uploads/");
-//     },
-//     filename: (req, file, cb) => {
-//       const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-//       cb(null, `${uniqueSuffix}-${file.originalname}`);
-//     },
-//   }),
-// });
-
-// MySQL connection
-
-// Multer setup for file uploads
-
 const storage = multer.diskStorage({
   destination: "./uploads/",
   filename: (req, file, cb) => {
@@ -39,6 +23,20 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage });
+
+const storiesDir = path.join(__dirname, "uploads/stories/");
+if (!fs.existsSync(storiesDir)) {
+  fs.mkdirSync(storiesDir, { recursive: true });
+}
+
+const storage_stories = multer.diskStorage({
+  destination: storiesDir,
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + path.extname(file.originalname));
+  },
+});
+
+const upload_stories = multer({ storage: storage_stories });
 
 const db = mysql.createConnection({
   host: "localhost",
@@ -214,7 +212,7 @@ app.get("/chat_list", async (req, res) => {
   }
 });
 
-app.post("/add_stories_list", upload.any(), async (req, res) => {
+app.post("/add_stories_list", upload_stories.any(), async (req, res) => {
   try {
     const token = req.headers.authorization?.split(" ")[1];
     if (!token) {
@@ -240,7 +238,7 @@ app.post("/add_stories_list", upload.any(), async (req, res) => {
     // Prepare data for batch insert
     const imageData = req.files.map((file, index) => [
       userId,
-      `/uploads/${file.filename}`,
+      `/uploads/stories/${file.filename}`,
       captions[index] || "Untitled Story", // Use a default title if empty
       new Date(),
       new Date(),
@@ -307,88 +305,6 @@ app.post("/add_stories_list", upload.any(), async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
-
-// app.post("/add_stories_list", upload.any(), async (req, res) => {
-//   try {
-//     const token = req.headers.authorization?.split(" ")[1];
-//     if (!token) {
-//       return res.status(403).json({ error: "No token provided" });
-//     }
-
-//     const decoded = jwt.verify(token, SECRET_KEY);
-//     const userId = decoded.userId;
-
-//     // Prepare file data for batch insert
-//     const imagePaths = req.files.map((file) => [
-//       userId,
-//       `/uploads/${file.filename}`,
-//       new Date(),
-//       new Date(),
-//     ]);
-
-//     const insertSql =
-//       "INSERT INTO stories (user_id, images_stories, created_at, updated_at) VALUES ?";
-
-//     db.query(insertSql, [imagePaths], (err) => {
-//       if (err) {
-//         return res.status(500).json({ error: "Failed to upload images" });
-//       }
-
-//       // Prepare to fetch the updated stories list and total count
-//       const baseUrl = `http://localhost:3001`;
-
-//       const fetchSql = `
-//         SELECT
-//           id,
-//           user_id,
-//           CONCAT(?, images_stories) AS images_stories,
-//           viewers,
-//           title,
-//           created_at
-//         FROM stories
-//         WHERE user_id = ?
-//           AND created_at BETWEEN DATE_SUB(NOW(), INTERVAL 24 HOUR) AND NOW()
-//       `;
-
-//       const countSql = `
-//         SELECT
-//           COUNT(*) AS total_count
-//         FROM stories
-//         WHERE user_id = ?
-//           AND created_at BETWEEN DATE_SUB(NOW(), INTERVAL 24 HOUR) AND NOW()
-//       `;
-
-//       // Fetch stories and count in parallel
-//       db.query(fetchSql, [baseUrl, userId], (err, stories) => {
-//         if (err) {
-//           return res.status(500).json({
-//             error: "Failed to retrieve updated stories",
-//             details: err.message,
-//           });
-//         }
-
-//         db.query(countSql, [userId], (err, countResult) => {
-//           if (err) {
-//             return res.status(500).json({
-//               error: "Failed to retrieve story count",
-//               details: err.message,
-//             });
-//           }
-
-//           const totalCount = countResult[0]?.total_count || 0;
-
-//           res.status(200).json({
-//             message: "Stories uploaded successfully",
-//             total_count: totalCount,
-//             stories: stories,
-//           });
-//         });
-//       });
-//     });
-//   } catch (error) {
-//     res.status(500).json({ error: "Internal Server Error" });
-//   }
-// });
 
 app.get("/user_receiver_list", async (req, res) => {
   try {
@@ -912,6 +828,136 @@ app.post("/delete_user_chat_list", async (req, res) => {
     );
   } catch (error) {
     res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+app.post("/view_profile_list", async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) {
+      return res.status(403).json({ error: "No token provided" });
+    }
+
+    const decoded = jwt.verify(token, SECRET_KEY);
+    const userId = decoded.userId;
+    const { viewId } = req.body;
+
+    if (!viewId) {
+      return res.status(400).json({ error: "viewId is required" });
+    }
+
+    const selectQuery = `SELECT * FROM users WHERE id = ?`;
+
+    db.query(selectQuery, [viewId], (err, results) => {
+      if (err) {
+        return res.status(500).json({
+          error: "Failed to retrieve user details",
+          details: err.message,
+        });
+      }
+
+      if (results.length === 0) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      res.status(200).json({ user: results[0] });
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ error: "Internal Server Error", details: error.message });
+  }
+});
+
+app.post("/block_user", async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) {
+      return res.status(403).json({ error: "No token provided" });
+    }
+
+    const decoded = jwt.verify(token, SECRET_KEY);
+    const userId = decoded.userId;
+    const { receiverId } = req.body;
+
+    if (!receiverId) {
+      return res.status(400).json({ error: "receiverId is required" });
+    }
+
+    const selectQuery = `SELECT * FROM block_user WHERE sender_id = ? AND receiver_id = ?`;
+
+    db.query(selectQuery, [userId, receiverId], (err, results) => {
+      if (err) {
+        return res.status(500).json({
+          error: "Failed to retrieve block status",
+          details: err.message,
+        });
+      }
+
+      if (results.length === 0) {
+        // User is not blocked, so insert the block record
+        const insertQuery = `INSERT INTO block_user (sender_id, receiver_id) VALUES (?, ?)`;
+
+        db.query(insertQuery, [userId, receiverId], (insertErr) => {
+          if (insertErr) {
+            return res.status(500).json({
+              error: "Failed to block user",
+              details: insertErr.message,
+            });
+          }
+
+          return res.status(200).json({ message: "User blocked successfully" });
+        });
+      } else {
+        return res.status(400).json({ error: "User is already blocked" });
+      }
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ error: "Internal Server Error", details: error.message });
+  }
+});
+
+app.post("/block_user_message", async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) {
+      return res.status(403).json({ error: "No token provided" });
+    }
+
+    const decoded = jwt.verify(token, SECRET_KEY);
+    const userId = decoded.userId;
+    const { receiverId } = req.body;
+
+    if (!receiverId) {
+      return res.status(400).json({ error: "receiverId is required" });
+    }
+
+    const selectQuery = `SELECT * FROM block_user WHERE sender_id = ? AND receiver_id = ?`;
+
+    db.query(selectQuery, [userId, receiverId], (err, results) => {
+      if (err) {
+        return res.status(500).json({
+          error: "Failed to retrieve block status",
+          details: err.message,
+        });
+      }
+
+      if (results.length === 0) {
+        return res
+          .status(200)
+          .json({ message: "User Open Message successfully", data: true });
+      } else {
+        return res
+          .status(400)
+          .json({ message: "User Not Open Message successfully", data: false });
+      }
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ error: "Internal Server Error", details: error.message });
   }
 });
 

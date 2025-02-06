@@ -471,3 +471,105 @@ export const DeleteUserChatListApi = async (receiverId) => {
     };
   }
 };
+
+export const ViewProfileListApi = async (viewId) => {
+  try {
+    const token = getToken();
+    if (!token) {
+      throw new Error("No valid token found");
+    }
+
+    const response = await axios.post(
+      `${baseUrl}/view_profile_list`,
+      { viewId },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    if (response && response.status === 200) {
+      return {
+        status: "success",
+        message: "User receiver list retrieved successfully",
+        data: response.data,
+      };
+    } else {
+      return {
+        status: "error",
+        message: "Failed to retrieve user receiver list",
+      };
+    }
+  } catch (err) {
+    return {
+      status: "error",
+      message: "Error fetching user receiver list",
+      error: err,
+    };
+  }
+};
+
+export const BlockUserChatListApi = async (receiverId) => {
+  try {
+    const token = getToken();
+    if (!token) {
+      throw new Error("No valid token found");
+    }
+
+    const response = await axios.post(
+      `${baseUrl}/block_user`,
+      { receiverId },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    if (response && response.status === 200) {
+      return {
+        status: "success",
+        message: "User receiver list retrieved successfully",
+        data: response.data,
+      };
+    } else {
+      return {
+        status: "error",
+        message: "Failed to retrieve user receiver list",
+      };
+    }
+  } catch (err) {
+    return {
+      status: "error",
+      message: "Error fetching user receiver list",
+      error: err,
+    };
+  }
+};
+
+export const BlockUserMessageListApi = async (receiverId) => {
+  try {
+    const token = getToken();
+    if (!token) {
+      throw new Error("No valid token found");
+    }
+
+    const response = await axios.post(
+      `${baseUrl}/block_user_message`,
+      { receiverId },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    if (response && response.status === 200) {
+      return {
+        status: "success",
+        message: "User receiver list retrieved successfully",
+        data: response.data,
+      };
+    } else {
+      return {
+        status: "error",
+        message: "Failed to retrieve user receiver list",
+      };
+    }
+  } catch (err) {
+    return {
+      status: "error",
+      message: "Error fetching user receiver list",
+      error: err,
+    };
+  }
+};

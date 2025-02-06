@@ -80,7 +80,7 @@ function Faq() {
       ),
     },
     {
-      key: "6",
+      key: "7",
       label: "Can I speak to a live agent instead of using the chatbot?",
       children: (
         <p style={{ color: "#000" }}>

@@ -2,7 +2,7 @@ import React from "react";
 import { Button, Upload } from "antd";
 
 function MessagesText({
-  message,
+  messages,
   setMessage,
   handleSendMessage,
   fileList,
@@ -50,7 +50,7 @@ function MessagesText({
             id="tynChatInput"
             type="text"
             placeholder="Type a message..."
-            value={message}
+            value={messages}
             onChange={(e) => setMessage(e.target.value)}
           />
           <button

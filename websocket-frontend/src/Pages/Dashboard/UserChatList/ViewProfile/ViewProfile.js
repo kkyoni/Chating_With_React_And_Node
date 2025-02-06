@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 
-function ViewProfile() {
+function ViewProfile({ viewProfileList }) {
+  const userListImage = "images/avatar/";
   return (
     <div
       className="tyn-main tyn-content-inner"
@@ -37,19 +38,13 @@ function ViewProfile() {
               <div className="tyn-media-group align-items-start">
                 <div className="tyn-media tyn-media-bordered tyn-size-4xl tyn-profile-avatar">
                   <img
-                    src="https://connectme-html.themeyn.com/images/avatar/1.jpg"
-                    alt=""
+                    src={`${userListImage}${viewProfileList.avatar}`}
+                    alt={viewProfileList.username}
                   />
                 </div>
                 <div className="tyn-media-col">
                   <div className="tyn-media-row">
-                    <h4 className="name">
-                      Nina Dubois <span className="username">@nina_dubois</span>
-                    </h4>
-                  </div>
-                  <div className="tyn-media-row has-dot-sap">
-                    <span className="content">287 Contacts</span>
-                    <span className="meta">8 Mutual</span>
+                    <h4 className="name">{viewProfileList.username}</h4>
                   </div>
                 </div>
               </div>
@@ -194,7 +189,7 @@ function ViewProfile() {
                                 </svg>
                               </div>
                               <span className="tyn-subtext">Emails</span>
-                              <h5>nina@gmail.com</h5>
+                              <h5>{viewProfileList.email}</h5>
                             </div>
                           </li>
                         </ul>
