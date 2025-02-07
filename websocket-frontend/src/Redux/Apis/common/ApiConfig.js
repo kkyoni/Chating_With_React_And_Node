@@ -573,3 +573,37 @@ export const BlockUserMessageListApi = async (receiverId) => {
     };
   }
 };
+
+export const BlockSenderMessageDisableListApi = async (receiverId) => {
+  try {
+    const token = getToken();
+    if (!token) {
+      throw new Error("No valid token found");
+    }
+
+    const response = await axios.post(
+      `${baseUrl}/block_sender_message_disable_text`,
+      { receiverId },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    if (response && response.status === 200) {
+      return {
+        status: "success",
+        message: "User receiver list retrieved successfully",
+        data: response.data,
+      };
+    } else {
+      return {
+        status: "error",
+        message: "Failed to retrieve user receiver list",
+      };
+    }
+  } catch (err) {
+    return {
+      status: "error",
+      message: "Error fetching user receiver list",
+      error: err,
+    };
+  }
+};

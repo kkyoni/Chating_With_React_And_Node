@@ -9,6 +9,9 @@ import { getUserIdFromToken } from "../../service/Token";
 import UserChatList from "./UserChatList/UserChatList";
 import ViewProfile from "./UserChatList/ViewProfile/ViewProfile";
 import UserChatModel from "./UserChatModel/UserChatModel";
+import { UserListActionHandler } from "../../Redux/Actions/common/UserList";
+import Swal from "sweetalert2";
+import { BlockUserChatListActionHandler } from "../../Redux/Actions/common/BlockUserChatList";
 
 function Dashboard() {
   const dispatch = useDispatch();
@@ -169,9 +172,39 @@ function Dashboard() {
     }
   }, [viewprofilelistdata]);
 
+  const handleBlockUserChat = (receiverId) => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "This action will Block the chat permanently!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, Block it!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        dispatch(BlockUserChatListActionHandler(receiverId));
+        Swal.fire("Block!", "The User has been Block.", "success");
+      }
+    });
+  };
+
+  const blockuserchatlistdata = useSelector(
+    (state) => state?.BlockUserChatListData?.block_user_chat_data
+  );
+  useEffect(() => {
+    if (blockuserchatlistdata) {
+      dispatch(UserListActionHandler());
+      setChatModel(false);
+    }
+  }, [blockuserchatlistdata, dispatch]);
   return (
     <div className="tyn-content tyn-content-full-height tyn-chat has-aside-base">
-      <UserChatList openChatModel={openChatModel} handleView={handleView} />
+      <UserChatList
+        openChatModel={openChatModel}
+        handleView={handleView}
+        handleBlockUserChat={handleBlockUserChat}
+      />
       {chatModel ? (
         <UserChatModel
           storiesFlag={storiesFlag}

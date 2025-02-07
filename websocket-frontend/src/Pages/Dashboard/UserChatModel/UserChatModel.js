@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import "./UserChatModel.css";
 import Messages from "./Messages/Messages";
 import MessagesText from "./MessagesText/MessagesText";
 import MessagesDrawer from "./MessagesDrawer/MessagesDrawer";
+import { BlockSenderMessageDisableListActionHandler } from "../../../Redux/Actions/common/BlockSenderMessageDisableList";
 
 function UserChatModel({
   storiesFlag,
@@ -17,11 +19,20 @@ function UserChatModel({
   handleRemove,
   receiverId,
 }) {
+  const dispatch = useDispatch();
   const userListImage = "images/avatar/";
   const [open, setOpen] = useState(false);
   const [openSearch, setOpenSearch] = useState(false);
+  const [blockSender, setBlockSender] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredMessages, setFilteredMessages] = useState(0);
+
+  const blocksendermessagedisabledata = useSelector(
+    (state) =>
+      state?.BlockSenderMessageDisableListData
+        ?.block_sender_message_disable_data
+  );
+
   const showDrawer = () => {
     setOpen(true);
   };
@@ -48,6 +59,14 @@ function UserChatModel({
       setFilteredMessages(0);
     }
   }, [searchTerm, chatListData]);
+
+  useEffect(() => {
+    dispatch(BlockSenderMessageDisableListActionHandler(receiverId));
+  }, [receiverId, dispatch]);
+
+  useEffect(() => {
+    setBlockSender(blocksendermessagedisabledata.data);
+  }, [blocksendermessagedisabledata]);
 
   return (
     <div className="tyn-main tyn-chat-content" id="tynMain">
@@ -178,14 +197,25 @@ function UserChatModel({
         receiverId={receiverId}
         searchTerm={searchTerm}
       />
-      <MessagesText
-        messages={messages}
-        setMessage={setMessage}
-        handleSendMessage={handleSendMessage}
-        fileList={fileList}
-        handleChange={handleChange}
-        handleRemove={handleRemove}
-      />
+      {blockSender ? (
+        <div className="tyn-chat-form">
+          <div
+            className="tyn-chat-form-enter"
+            style={{ textAlign: "center", display: "block", color: "red" }}
+          >
+            Block User
+          </div>
+        </div>
+      ) : (
+        <MessagesText
+          messages={messages}
+          setMessage={setMessage}
+          handleSendMessage={handleSendMessage}
+          fileList={fileList}
+          handleChange={handleChange}
+          handleRemove={handleRemove}
+        />
+      )}
       {open ? (
         <MessagesDrawer
           chatListData={chatListData}

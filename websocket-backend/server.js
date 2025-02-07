@@ -961,6 +961,48 @@ app.post("/block_user_message", async (req, res) => {
   }
 });
 
+app.post("/block_sender_message_disable_text", async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) {
+      return res.status(403).json({ error: "No token provided" });
+    }
+
+    const decoded = jwt.verify(token, SECRET_KEY);
+    const userId = decoded.userId;
+    const { receiverId } = req.body;
+
+    if (!receiverId) {
+      return res.status(400).json({ error: "receiverId is required" });
+    }
+
+    const selectQuery = `SELECT * FROM block_user WHERE sender_id = ? AND receiver_id = ?`;
+
+    db.query(selectQuery, [receiverId, userId], (err, results) => {
+      if (err) {
+        return res.status(500).json({
+          error: "Failed to retrieve block status",
+          details: err.message,
+        });
+      }
+
+      if (results.length === 0) {
+        return res
+          .status(200)
+          .json({ message: "User Text Message Open", data: false });
+      } else {
+        return res
+          .status(200)
+          .json({ message: "User Text Message Not Open", data: true });
+      }
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ error: "Internal Server Error", details: error.message });
+  }
+});
+
 app.post("/images", upload.single("image"), (req, res) => {
   const userId = 1;
   const imagePath = `/uploads/${req.file.filename}`;

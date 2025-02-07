@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { UserListActionHandler } from "../../../Redux/Actions/common/UserList";
 import { DeleteUserChatListActionHandler } from "../../../Redux/Actions/common/DeleteUserChatList";
-import { BlockUserChatListActionHandler } from "../../../Redux/Actions/common/BlockUserChatList";
 import { useDispatch, useSelector } from "react-redux";
 import moment from "moment";
 import { Badge, Dropdown } from "antd";
@@ -14,7 +13,7 @@ import {
 import Swal from "sweetalert2";
 import { Link } from "react-router-dom";
 
-function UserChatList({ openChatModel, handleView }) {
+function UserChatList({ openChatModel, handleView, handleBlockUserChat }) {
   const dispatch = useDispatch();
   const [userListData, setUserListData] = useState([]);
   const userListImage = "images/avatar/";
@@ -48,6 +47,7 @@ function UserChatList({ openChatModel, handleView }) {
 
   useEffect(() => {
     if (blockuserchatlistdata) {
+      console.log("blockuserchatlistdata===>",blockuserchatlistdata);
       dispatch(UserListActionHandler());
     }
   }, [blockuserchatlistdata, dispatch]);
@@ -106,23 +106,6 @@ function UserChatList({ openChatModel, handleView }) {
       if (result.isConfirmed) {
         dispatch(DeleteUserChatListActionHandler(receiverId));
         Swal.fire("Deleted!", "The chat has been deleted.", "success");
-      }
-    });
-  };
-
-  const handleBlockUserChat = (receiverId) => {
-    Swal.fire({
-      title: "Are you sure?",
-      text: "This action will Block the chat permanently!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
-      confirmButtonText: "Yes, Block it!",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        dispatch(BlockUserChatListActionHandler(receiverId));
-        Swal.fire("Block!", "The User has been Block.", "success");
       }
     });
   };

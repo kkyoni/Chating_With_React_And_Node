@@ -445,6 +445,44 @@
 			"response": []
 		},
 		{
+			"name": "Block Sender Message Disable Text",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTczODkzMTcwNX0.sJ-qEL9-NO89_-fBlWRdyImmQMmrl5zuvQ9Sq8XiCGs",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"receiverId\": 4\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3001/block_sender_message_disable_text",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"block_sender_message_disable_text"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "View Profile List",
 			"request": {
 				"auth": {
