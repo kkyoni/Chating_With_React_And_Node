@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./UserChatModel.css";
 import Messages from "./Messages/Messages";
 import MessagesText from "./MessagesText/MessagesText";
@@ -19,12 +19,36 @@ function UserChatModel({
 }) {
   const userListImage = "images/avatar/";
   const [open, setOpen] = useState(false);
+  const [openSearch, setOpenSearch] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filteredMessages, setFilteredMessages] = useState(0);
   const showDrawer = () => {
     setOpen(true);
   };
   const onClose = () => {
     setOpen(false);
   };
+  const showSearch = (value) => {
+    if (value === true) {
+      setOpenSearch(value);
+    } else {
+      setOpenSearch(value);
+      setSearchTerm("");
+      setFilteredMessages(0);
+    }
+  };
+
+  useEffect(() => {
+    if (searchTerm) {
+      const filteredMessages = chatListData.filter((chat) =>
+        chat.content?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setFilteredMessages(filteredMessages.length);
+    } else {
+      setFilteredMessages(0);
+    }
+  }, [searchTerm, chatListData]);
+
   return (
     <div className="tyn-main tyn-chat-content" id="tynMain">
       <div className="tyn-chat-head">
@@ -58,6 +82,23 @@ function UserChatModel({
         <ul className="tyn-list-inline gap gap-3 ms-auto">
           <li>
             <button
+              className="btn btn-icon btn-light js-toggle-chat-search"
+              onClick={(e) => showSearch(true)}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                fill="currentColor"
+                className="bi bi-search"
+                viewBox="0 0 16 16"
+              >
+                <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"></path>
+              </svg>
+            </button>
+          </li>
+          <li>
+            <button
               className="btn btn-icon btn-light js-toggle-chat-options"
               onClick={showDrawer}
             >
@@ -75,11 +116,67 @@ function UserChatModel({
             </button>
           </li>
         </ul>
+        {openSearch ? (
+          <div className="tyn-chat-search active" id="tynChatSearch">
+            <div className="flex-grow-1">
+              <div className="form-group">
+                <div className="form-control-wrap form-control-plaintext-wrap">
+                  <div className="form-control-icon start">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      fill="currentColor"
+                      className="bi bi-search"
+                      viewBox="0 0 16 16"
+                    >
+                      <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"></path>
+                    </svg>
+                  </div>
+                  <input
+                    type="text"
+                    className="form-control form-control-plaintext"
+                    id="searchInThisChat"
+                    placeholder="Search in this chat"
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </div>
+              </div>
+            </div>
+            <div className="d-flex align-items-center gap gap-3">
+              <ul className="tyn-list-inline " style={{ marginBottom: "0px" }}>
+                <li style={{ marginRight: "5px" }}>
+                  <button className="btn btn-icon btn-md btn-light js-toggle-chat-search">
+                    {filteredMessages}
+                  </button>
+                </li>
+                <li>
+                  <button
+                    className="btn btn-icon btn-md btn-light js-toggle-chat-search"
+                    onClick={(e) => showSearch(false)}
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      fill="currentColor"
+                      className="bi bi-x-lg"
+                      viewBox="0 0 16 16"
+                    >
+                      <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"></path>
+                    </svg>
+                  </button>
+                </li>
+              </ul>
+            </div>
+          </div>
+        ) : null}
       </div>
       <Messages
         chatListData={chatListData}
         userId={userId}
         receiverId={receiverId}
+        searchTerm={searchTerm}
       />
       <MessagesText
         messages={messages}

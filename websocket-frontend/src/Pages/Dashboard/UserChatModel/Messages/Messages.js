@@ -7,7 +7,7 @@ import { UserListActionHandler } from "../../../../Redux/Actions/common/UserList
 // import Swal from "sweetalert2";
 import { ChatListActionHandler } from "../../../../Redux/Actions/common/ChatList";
 
-function Messages({ chatListData, userId, receiverId }) {
+function Messages({ chatListData, userId, receiverId, searchTerm }) {
   const dispatch = useDispatch();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [carouselData, setCarousel] = useState([]);
@@ -90,29 +90,19 @@ function Messages({ chatListData, userId, receiverId }) {
     scrollToLastMessage();
   }, [receiverId, scrollToLastMessage]);
 
-  // const handleEdit = (editId) => {
-  //   console.log("Edit clicked", editId);
-  // };
-
-  // const handleDelete = (deleteId) => {
-  //   Swal.fire({
-  //     title: "Are you sure?",
-  //     text: "You won't be able to revert this!",
-  //     icon: "warning",
-  //     showCancelButton: true,
-  //     confirmButtonColor: "#3085d6",
-  //     cancelButtonColor: "#d33",
-  //     confirmButtonText: "Yes, delete it!",
-  //   }).then(async (result) => {
-  //     if (result.isConfirmed) {
-  //       try {
-  //         dispatch(UserChatDeleteListActionHandler(deleteId));
-  //       } catch (error) {
-  //         Swal.fire("Error!", "Failed to delete. Please try again.", "error");
-  //       }
-  //     }
-  //   });
-  // };
+  const highlightText = (text, highlight) => {
+    if (!highlight.trim()) return text;
+    const regex = new RegExp(`(${highlight})`, "gi");
+    return text.split(regex).map((part, index) =>
+      part.toLowerCase() === highlight.toLowerCase() ? (
+        <strong key={index} style={{ color: "red" }}>
+          {part}
+        </strong>
+      ) : (
+        part
+      )
+    );
+  };
 
   return (
     <div
@@ -120,6 +110,12 @@ function Messages({ chatListData, userId, receiverId }) {
       id="tynChatBody"
       data-simplebar="init"
     >
+      {/* <input
+        placeholder="Search Messages"
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        style={{ marginBottom: "10px", width: "100%" }}
+      /> */}
       <div className="simplebar-wrapper" style={{ margin: "0px" }}>
         <div
           className="simplebar-content-wrapper"
@@ -226,48 +222,8 @@ function Messages({ chatListData, userId, receiverId }) {
                           {chatlist.content && (
                             <div className="tyn-reply-bubble">
                               <div className="tyn-reply-text">
-                                {chatlist.content}
+                                {highlightText(chatlist.content, searchTerm)}
                               </div>
-                              {/* {userId === chatlist.sender_id && (
-                                <ul className="tyn-reply-tools">
-                                  <li className="dropup-center">
-                                    <Dropdown
-                                      menu={{
-                                        items: [
-                                          {
-                                            key: "1",
-                                            label: (
-                                              <span
-                                                onClick={() =>
-                                                  handleEdit(chatlist.id)
-                                                }
-                                              >
-                                                Edit
-                                              </span>
-                                            ),
-                                          },
-                                          {
-                                            key: "2",
-                                            label: (
-                                              <span
-                                                onClick={() =>
-                                                  handleDelete(chatlist.id)
-                                                }
-                                              >
-                                                Delete
-                                              </span>
-                                            ),
-                                          },
-                                        ],
-                                      }}
-                                    >
-                                      <Link onClick={(e) => e.preventDefault()}>
-                                        <Space>⋮</Space>
-                                      </Link>
-                                    </Dropdown>
-                                  </li>
-                                </ul>
-                              )} */}
                             </div>
                           )}
                         </div>
