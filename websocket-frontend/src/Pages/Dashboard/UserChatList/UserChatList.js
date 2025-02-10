@@ -47,7 +47,7 @@ function UserChatList({ openChatModel, handleView, handleBlockUserChat }) {
 
   useEffect(() => {
     if (blockuserchatlistdata) {
-      console.log("blockuserchatlistdata===>",blockuserchatlistdata);
+      console.log("blockuserchatlistdata===>", blockuserchatlistdata);
       dispatch(UserListActionHandler());
     }
   }, [blockuserchatlistdata, dispatch]);
@@ -110,6 +110,17 @@ function UserChatList({ openChatModel, handleView, handleBlockUserChat }) {
     });
   };
 
+  const handleBlockUser = (value) => {
+    if (value === 1) {
+      const filteredUsers = userListData.filter(
+        (user) => user.block_user_flag === value
+      );
+      setUserListData(filteredUsers);
+    } else {
+      dispatch(UserListActionHandler());
+    }
+  };
+
   return (
     <div className="tyn-aside tyn-aside-base">
       <div className="tyn-aside-head">
@@ -118,6 +129,49 @@ function UserChatList({ openChatModel, handleView, handleBlockUserChat }) {
         </div>
         <div className="tyn-aside-head-tools">
           <ul className="link-group gap gx-3">
+            <li className="dropdown">
+              <Dropdown
+                menu={{
+                  items: [
+                    {
+                      key: "1",
+                      label: (
+                        <span onClick={(e) => handleBlockUser(0)}>
+                          All Chats
+                        </span>
+                      ),
+                      icon: <UserOutlined />,
+                    },
+                    {
+                      key: "2",
+                      label: (
+                        <span onClick={(e) => handleBlockUser(1)}>
+                          User Block
+                        </span>
+                      ),
+                      icon: <UserDeleteOutlined />,
+                    },
+                  ],
+                }}
+                trigger={["click"]}
+              >
+                <Link
+                  onClick={(e) => e.preventDefault()}
+                  className="dropdown-trigger"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    fill="currentColor"
+                    className="bi bi-three-dots"
+                    viewBox="0 0 16 16"
+                  >
+                    <path d="M3 9.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3"></path>
+                  </svg>
+                </Link>
+              </Dropdown>
+            </li>
             <li className="dropdown">
               {refepage ? (
                 <SyncOutlined spin />
@@ -170,12 +224,25 @@ function UserChatList({ openChatModel, handleView, handleBlockUserChat }) {
                   >
                     <div className="tyn-media-group">
                       <div className="tyn-media tyn-size-lg">
-                        <Badge count={user.unread_count}>
-                          <img
-                            src={`${userListImage}${user.avatar}`}
-                            alt={user.username}
-                          />
-                        </Badge>
+                        {user.block_user_flag === 1 ? (
+                          <Badge.Ribbon
+                            text="block"
+                            color="red"
+                            count={user.unread_count}
+                          >
+                            <img
+                              src={`${userListImage}${user.avatar}`}
+                              alt={user.username}
+                            />
+                          </Badge.Ribbon>
+                        ) : (
+                          <Badge count={user.unread_count}>
+                            <img
+                              src={`${userListImage}${user.avatar}`}
+                              alt={user.username}
+                            />
+                          </Badge>
+                        )}
                       </div>
                       <div className="tyn-media-col">
                         <div onClick={() => openChatModel(user.user_id)}>
@@ -242,13 +309,19 @@ function UserChatList({ openChatModel, handleView, handleBlockUserChat }) {
                                       {
                                         key: "4",
                                         label: (
-                                          <span
-                                            onClick={() =>
-                                              handleBlockUserChat(user.user_id)
-                                            }
-                                          >
-                                            Block
-                                          </span>
+                                          <>
+                                            <span
+                                              onClick={() =>
+                                                handleBlockUserChat(
+                                                  user.user_id
+                                                )
+                                              }
+                                            >
+                                              {user.block_user_flag === 1
+                                                ? "UnBlock"
+                                                : "Block"}
+                                            </span>
+                                          </>
                                         ),
                                         icon: <UserDeleteOutlined />,
                                       },

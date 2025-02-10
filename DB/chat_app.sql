@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Feb 07, 2025 at 02:53 PM
+-- Generation Time: Feb 10, 2025 at 08:35 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.1.25
 
@@ -165,7 +165,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `block_user`
 --
 ALTER TABLE `block_user`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `messages`

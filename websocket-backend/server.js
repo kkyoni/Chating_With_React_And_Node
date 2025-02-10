@@ -91,39 +91,41 @@ app.get("/user_list", async (req, res) => {
     users.id AS user_id,
     users.username,
     users.avatar,
-    
+
     (
       SELECT content 
-    FROM messages 
-    WHERE ((sender_id = users.id AND receiver_id = ${userId}) 
-        OR (sender_id = ${userId} AND receiver_id = users.id)) 
-    AND (JSON_CONTAINS(delete_user_id, ${userId}) = 0 OR delete_user_id IS NULL) 
-    ORDER BY timestamp DESC
-    LIMIT 1
+      FROM messages 
+      WHERE ((sender_id = users.id AND receiver_id = ${userId}) 
+          OR (sender_id = ${userId} AND receiver_id = users.id)) 
+      AND (JSON_CONTAINS(delete_user_id, ${userId}) = 0 OR delete_user_id IS NULL) 
+      ORDER BY timestamp DESC
+      LIMIT 1
     ) AS last_message,
+
     (
-        CASE
-          WHEN (
-            SELECT receiver_id 
-            FROM messages 
-            WHERE ((sender_id = users.id AND receiver_id = ${userId}) 
-               OR (sender_id = ${userId} AND receiver_id = users.id))
-               AND (JSON_CONTAINS(delete_user_id, ${userId}) = 0 OR delete_user_id IS NULL) 
-            ORDER BY timestamp DESC 
-            LIMIT 1
-          ) = ${userId}
-          THEN (
-            SELECT status 
-            FROM messages 
-            WHERE sender_id = users.id 
-              AND receiver_id = ${userId} 
-              AND (JSON_CONTAINS(delete_user_id, ${userId}) = 0 OR delete_user_id IS NULL) 
-            ORDER BY timestamp DESC 
-            LIMIT 1
-          )
-          ELSE 'read'
-        END
-      ) AS last_status,
+      CASE
+        WHEN (
+          SELECT receiver_id 
+          FROM messages 
+          WHERE ((sender_id = users.id AND receiver_id = ${userId}) 
+             OR (sender_id = ${userId} AND receiver_id = users.id))
+             AND (JSON_CONTAINS(delete_user_id, ${userId}) = 0 OR delete_user_id IS NULL) 
+          ORDER BY timestamp DESC 
+          LIMIT 1
+        ) = ${userId}
+        THEN (
+          SELECT status 
+          FROM messages 
+          WHERE sender_id = users.id 
+            AND receiver_id = ${userId} 
+            AND (JSON_CONTAINS(delete_user_id, ${userId}) = 0 OR delete_user_id IS NULL) 
+          ORDER BY timestamp DESC 
+          LIMIT 1
+        )
+        ELSE 'read'
+      END
+    ) AS last_status,
+
     (
       SELECT timestamp 
       FROM messages 
@@ -133,6 +135,7 @@ app.get("/user_list", async (req, res) => {
       ORDER BY timestamp DESC 
       LIMIT 1
     ) AS last_message_time,
+
     (
       SELECT COUNT(*) 
       FROM messages 
@@ -140,7 +143,19 @@ app.get("/user_list", async (req, res) => {
         AND sender_id = users.id 
         AND status = 'unread'
         AND (JSON_CONTAINS(delete_user_id, ${userId}) = 0 OR delete_user_id IS NULL) 
-    ) AS unread_count
+    ) AS unread_count,
+
+    (
+      CASE 
+        WHEN EXISTS (
+          SELECT 1 
+          FROM block_user 
+          WHERE (sender_id = ${userId} AND receiver_id = users.id) 
+          OR (sender_id = users.id AND receiver_id = ${userId})
+        ) THEN true
+        ELSE false
+      END
+    ) AS block_user_flag
 
   FROM users
   WHERE users.id != ${userId}
@@ -161,6 +176,93 @@ app.get("/user_list", async (req, res) => {
     return res.status(401).json({ error: "Invalid token" });
   }
 });
+
+// app.get("/user_list", async (req, res) => {
+//   try {
+//     const token = req.headers.authorization?.split(" ")[1];
+
+//     if (!token) {
+//       return res.status(403).json({ error: "No token provided" });
+//     }
+
+//     const decoded = jwt.verify(token, SECRET_KEY);
+//     const userId = decoded.userId;
+
+//     const query = `
+//   SELECT
+//     users.id AS user_id,
+//     users.username,
+//     users.avatar,
+
+//     (
+//       SELECT content
+//     FROM messages
+//     WHERE ((sender_id = users.id AND receiver_id = ${userId})
+//         OR (sender_id = ${userId} AND receiver_id = users.id))
+//     AND (JSON_CONTAINS(delete_user_id, ${userId}) = 0 OR delete_user_id IS NULL)
+//     ORDER BY timestamp DESC
+//     LIMIT 1
+//     ) AS last_message,
+//     (
+//         CASE
+//           WHEN (
+//             SELECT receiver_id
+//             FROM messages
+//             WHERE ((sender_id = users.id AND receiver_id = ${userId})
+//                OR (sender_id = ${userId} AND receiver_id = users.id))
+//                AND (JSON_CONTAINS(delete_user_id, ${userId}) = 0 OR delete_user_id IS NULL)
+//             ORDER BY timestamp DESC
+//             LIMIT 1
+//           ) = ${userId}
+//           THEN (
+//             SELECT status
+//             FROM messages
+//             WHERE sender_id = users.id
+//               AND receiver_id = ${userId}
+//               AND (JSON_CONTAINS(delete_user_id, ${userId}) = 0 OR delete_user_id IS NULL)
+//             ORDER BY timestamp DESC
+//             LIMIT 1
+//           )
+//           ELSE 'read'
+//         END
+//       ) AS last_status,
+//     (
+//       SELECT timestamp
+//       FROM messages
+//       WHERE ((sender_id = users.id AND receiver_id = ${userId})
+//          OR (sender_id = ${userId} AND receiver_id = users.id))
+//          AND (JSON_CONTAINS(delete_user_id, ${userId}) = 0 OR delete_user_id IS NULL)
+//       ORDER BY timestamp DESC
+//       LIMIT 1
+//     ) AS last_message_time,
+//     (
+//       SELECT COUNT(*)
+//       FROM messages
+//       WHERE receiver_id = ${userId}
+//         AND sender_id = users.id
+//         AND status = 'unread'
+//         AND (JSON_CONTAINS(delete_user_id, ${userId}) = 0 OR delete_user_id IS NULL)
+//     ) AS unread_count
+
+//   FROM users
+//   WHERE users.id != ${userId}
+//   ORDER BY last_message_time DESC;
+// `;
+
+//     db.query(query, (err, results) => {
+//       if (err) {
+//         return res.status(500).json({
+//           error: "Failed to retrieve user list",
+//           details: err.message,
+//         });
+//       }
+
+//       res.status(200).json({ users: results });
+//     });
+//   } catch (error) {
+//     return res.status(401).json({ error: "Invalid token" });
+//   }
+// });
 
 app.get("/chat_list", async (req, res) => {
   try {
@@ -895,7 +997,7 @@ app.post("/block_user", async (req, res) => {
       }
 
       if (results.length === 0) {
-        // User is not blocked, so insert the block record
+        // If no record exists, insert a new block
         const insertQuery = `INSERT INTO block_user (sender_id, receiver_id) VALUES (?, ?)`;
 
         db.query(insertQuery, [userId, receiverId], (insertErr) => {
@@ -909,7 +1011,21 @@ app.post("/block_user", async (req, res) => {
           return res.status(200).json({ message: "User blocked successfully" });
         });
       } else {
-        return res.status(400).json({ error: "User is already blocked" });
+        // If record exists, remove the block
+        const deleteQuery = `DELETE FROM block_user WHERE sender_id = ? AND receiver_id = ?`;
+
+        db.query(deleteQuery, [userId, receiverId], (deleteErr) => {
+          if (deleteErr) {
+            return res.status(500).json({
+              error: "Failed to unblock user",
+              details: deleteErr.message,
+            });
+          }
+
+          return res
+            .status(200)
+            .json({ message: "User unblocked successfully" });
+        });
       }
     });
   } catch (error) {

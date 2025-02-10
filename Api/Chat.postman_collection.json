@@ -80,7 +80,7 @@
 					"bearer": [
 						{
 							"key": "token",
-							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTczMjEwNzYyMX0.xRj38YdaKObU4ZXe4Ta-8YC7QFLUV6GyMohBzecvG4w",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTczOTE2OTQ2OX0.sXa8ANziXKSr30GG_MsJzDuG5UPdkf-YICqqUfs9a6I",
 							"type": "string"
 						}
 					]
